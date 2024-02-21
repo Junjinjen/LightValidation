@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "LightValidation.SourceGenerator": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\LightValidation\\LightValidation.csproj"
+    }
+  }
+}
