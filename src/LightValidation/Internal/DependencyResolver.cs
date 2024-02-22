@@ -129,6 +129,9 @@ internal static class DependencyResolver
     public static IValidationExecutorFactory ValidationExecutorFactory { get; set; }
         = new ValidationExecutorFactory();
 
+    public static IDefaultValidationCacheFactory DefaultValidationCacheFactory { get; set; }
+        = new DefaultValidationCacheFactory();
+
     public static IValidationOptionsFactory ValidationOptionsFactory { get; set; }
         = new ValidationOptionsFactory();
 }

@@ -122,11 +122,13 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
             ruleSets = validationOptions.RuleSets;
         }
 
+        var defaultValidationCacheFactory = DependencyResolver.DefaultValidationCacheFactory;
+
         var parameters = new ValidationContextParameters<TEntity>
         {
             Entity = entity,
             RuleSets = ruleSets ?? RuleSetCollection.Default,
-            ValidationCache = validationCache ?? new ValidationCache(),
+            ValidationCache = validationCache ?? defaultValidationCacheFactory.Create(),
             CancellationToken = cancellationToken,
         };
 
