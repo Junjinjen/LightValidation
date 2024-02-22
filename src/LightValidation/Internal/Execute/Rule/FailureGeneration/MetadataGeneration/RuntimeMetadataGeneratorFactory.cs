@@ -7,15 +7,18 @@ internal interface IRuntimeMetadataGeneratorFactory
 {
     IErrorMetadataGenerator<TEntity, TProperty> Create<TEntity, TProperty>(
         Dictionary<string, Func<ValidationContext<TEntity>, TProperty, object?>> runtimeMetadata,
-        Dictionary<string, object?> staticMetadata);
+        Dictionary<string, object?> staticMetadata,
+        bool insertCollectionIndex);
 }
 
 internal sealed class RuntimeMetadataGeneratorFactory : IRuntimeMetadataGeneratorFactory
 {
     public IErrorMetadataGenerator<TEntity, TProperty> Create<TEntity, TProperty>(
         Dictionary<string, Func<ValidationContext<TEntity>, TProperty, object?>> runtimeMetadata,
-        Dictionary<string, object?> staticMetadata)
+        Dictionary<string, object?> staticMetadata,
+        bool insertCollectionIndex)
     {
-        return new RuntimeMetadataGenerator<TEntity, TProperty>(runtimeMetadata, staticMetadata);
+        return new RuntimeMetadataGenerator<TEntity, TProperty>(
+            runtimeMetadata, staticMetadata, insertCollectionIndex);
     }
 }

@@ -57,17 +57,18 @@ internal sealed class NestedContext<TEntity, TProperty> : INestedContext<TProper
 
     public void AddRuleFailure(RuleFailure failure)
     {
+        var propertyName = GetPropertyName(failure);
+
         var propertyFailure = new RuleFailure
         {
-            PropertyName = _propertyName,
+            PropertyName = propertyName,
             PropertyValue = failure.PropertyValue,
             ErrorCode = failure.ErrorCode,
             ErrorDescription = failure.ErrorDescription,
             ErrorMetadata = failure.ErrorMetadata,
         };
 
-        var propertyNameModifier = GetPropertyNameModifier(failure);
-        _propertyContext.AddRuleFailure(propertyFailure, propertyNameModifier);
+        _propertyContext.AddRuleFailure(propertyFailure);
     }
 
     public void Dispose()
@@ -84,15 +85,23 @@ internal sealed class NestedContext<TEntity, TProperty> : INestedContext<TProper
         ArrayPool<object?>.Shared.Return(_metadata);
     }
 
-    private static Action<StringBuilder>? GetPropertyNameModifier(RuleFailure failure)
+    private string GetPropertyName(RuleFailure failure)
     {
-        if (failure is NullEntityFailure)
+        var nestedPropertyName = failure.PropertyName;
+        var isNullEntityFailure = failure is NullEntityFailure;
+        if (_propertyContext.CollectionIndexBuilder == null)
         {
-            return null;
+            return isNullEntityFailure ? _propertyName : $"{_propertyName}.{nestedPropertyName}";
         }
 
-        var originalPropertyName = failure.PropertyName;
+        var builder = new StringBuilder(_propertyName);
+        _propertyContext.CollectionIndexBuilder.Invoke(builder);
 
-        return propertyName => propertyName.Append(CultureInfo.InvariantCulture, $".{originalPropertyName}");
+        if (!isNullEntityFailure)
+        {
+            builder.Append(CultureInfo.InvariantCulture, $".{nestedPropertyName}");
+        }
+
+        return builder.ToString();
     }
 }

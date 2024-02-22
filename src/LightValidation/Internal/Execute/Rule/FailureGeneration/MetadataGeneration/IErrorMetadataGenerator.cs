@@ -4,5 +4,6 @@ namespace LightValidation.Internal.Execute.Rule.FailureGeneration.MetadataGenera
 
 internal interface IErrorMetadataGenerator<TEntity, TProperty>
 {
-    IReadOnlyDictionary<string, object?> Generate(ValidationContext<TEntity> context, TProperty propertyValue);
+    IReadOnlyDictionary<string, object?> Generate(
+        ValidationContext<TEntity> context, TProperty propertyValue, string? collectionIndex);
 }

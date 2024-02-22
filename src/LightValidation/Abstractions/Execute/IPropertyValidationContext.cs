@@ -18,9 +18,11 @@ public interface IPropertyValidationContext<TEntity, out TProperty>
 
     bool CanExecuteDependentRules { get; }
 
+    Action<StringBuilder>? CollectionIndexBuilder { get; }
+
     object? GetValidationMetadata(int metadataId);
 
     void SetValidationMetadata(int metadataId, object? value);
 
-    void AddRuleFailure(RuleFailure failure, Action<StringBuilder>? propertyNameModifier = null);
+    void AddRuleFailure(RuleFailure failure);
 }

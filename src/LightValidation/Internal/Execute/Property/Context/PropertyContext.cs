@@ -19,6 +19,8 @@ internal sealed class PropertyContext<TEntity, TProperty> : IPropertyValidationC
 
     public bool CanExecuteDependentRules => true;
 
+    public Action<StringBuilder>? CollectionIndexBuilder => null;
+
     public object? GetValidationMetadata(int metadataId)
     {
         return EntityValidationContext.GetValidationMetadata(metadataId);
@@ -29,30 +31,10 @@ internal sealed class PropertyContext<TEntity, TProperty> : IPropertyValidationC
         EntityValidationContext.SetValidationMetadata(metadataId, value);
     }
 
-    public void AddRuleFailure(RuleFailure failure, Action<StringBuilder>? propertyNameModifier = null)
+    public void AddRuleFailure(RuleFailure failure)
     {
         IsPropertyValid = false;
 
-        if (propertyNameModifier != null)
-        {
-            failure = ModifyRuleFailure(failure, propertyNameModifier);
-        }
-
         EntityValidationContext.AddRuleFailure(failure);
-    }
-
-    private static RuleFailure ModifyRuleFailure(RuleFailure failure, Action<StringBuilder> propertyNameModifier)
-    {
-        var propertyNameBuilder = new StringBuilder(failure.PropertyName);
-        propertyNameModifier.Invoke(propertyNameBuilder);
-
-        return new RuleFailure
-        {
-            PropertyName = propertyNameBuilder.ToString(),
-            PropertyValue = failure.PropertyValue,
-            ErrorCode = failure.ErrorCode,
-            ErrorDescription = failure.ErrorDescription,
-            ErrorMetadata = failure.ErrorMetadata,
-        };
     }
 }

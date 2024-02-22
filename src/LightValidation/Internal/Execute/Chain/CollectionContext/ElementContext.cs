@@ -45,6 +45,8 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
     public bool CanExecuteDependentRules =>
         _collectionContext.CanExecuteDependentRules && ElementIndex == Elements.Count - 1;
 
+    public Action<StringBuilder>? CollectionIndexBuilder => BuildCollectionIndex;
+
     public object? GetValidationMetadata(int metadataId)
     {
         var metadata = GetCollectionMetadata(metadataId);
@@ -58,15 +60,9 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
         metadata.SetElementMetadata(ElementIndex, value);
     }
 
-    public void AddRuleFailure(RuleFailure failure, Action<StringBuilder>? propertyNameModifier = null)
+    public void AddRuleFailure(RuleFailure failure)
     {
-        var index = ElementIndex;
-        _collectionContext.AddRuleFailure(failure, propertyName =>
-        {
-            propertyName.Append(CultureInfo.InvariantCulture, $"[{index}]");
-
-            propertyNameModifier?.Invoke(propertyName);
-        });
+        _collectionContext.AddRuleFailure(failure);
     }
 
     private ICollectionMetadata GetCollectionMetadata(int metadataId)
@@ -80,5 +76,11 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
         }
 
         return (ICollectionMetadata)value;
+    }
+
+    private void BuildCollectionIndex(StringBuilder builder)
+    {
+        _collectionContext.CollectionIndexBuilder?.Invoke(builder);
+        builder.Append(CultureInfo.InvariantCulture, $"[{ElementIndex}]");
     }
 }

@@ -82,7 +82,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
         var result = await _rule.Validate(context.ValidationContext, context.PropertyValue).ConfigureAwait(false);
         if (!result)
         {
-            var failure = _failureGenerator.Generate(context.ValidationContext, context.PropertyValue);
+            var failure = _failureGenerator.Generate(context);
             context.AddRuleFailure(failure);
 
             return;
@@ -102,7 +102,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
         var result = await _rule.Validate(context.ValidationContext, context.PropertyValue).ConfigureAwait(false);
         if (!result)
         {
-            var failure = _failureGenerator.Generate(context.ValidationContext, context.PropertyValue);
+            var failure = _failureGenerator.Generate(context);
             context.AddRuleFailure(failure);
         }
     }

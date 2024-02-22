@@ -12,7 +12,8 @@ internal sealed class StaticMetadataGenerator<TEntity, TProperty> : IErrorMetada
         _metadata = staticMetadata.Count != 0 ? staticMetadata : FrozenDictionary<string, object?>.Empty;
     }
 
-    public IReadOnlyDictionary<string, object?> Generate(ValidationContext<TEntity> context, TProperty propertyValue)
+    public IReadOnlyDictionary<string, object?> Generate(
+        ValidationContext<TEntity> context, TProperty propertyValue, string? collectionIndex)
     {
         return _metadata;
     }

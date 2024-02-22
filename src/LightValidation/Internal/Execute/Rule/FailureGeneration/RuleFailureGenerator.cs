@@ -1,12 +1,14 @@
-﻿using LightValidation.Internal.Execute.Rule.FailureGeneration.DescriptionGeneration;
+﻿using LightValidation.Abstractions.Execute;
+using LightValidation.Internal.Execute.Rule.FailureGeneration.DescriptionGeneration;
 using LightValidation.Internal.Execute.Rule.FailureGeneration.MetadataGeneration;
 using LightValidation.Result;
+using System.Text;
 
 namespace LightValidation.Internal.Execute.Rule.FailureGeneration;
 
 internal interface IRuleFailureGenerator<TEntity, TProperty>
 {
-    RuleFailure Generate(ValidationContext<TEntity> context, TProperty propertyValue);
+    RuleFailure Generate(IPropertyValidationContext<TEntity, TProperty> context);
 }
 
 internal sealed class RuleFailureGenerator<TEntity, TProperty> : IRuleFailureGenerator<TEntity, TProperty>
@@ -29,18 +31,45 @@ internal sealed class RuleFailureGenerator<TEntity, TProperty> : IRuleFailureGen
         _descriptionGenerator = descriptionGenerator;
     }
 
-    public RuleFailure Generate(ValidationContext<TEntity> context, TProperty propertyValue)
+    public RuleFailure Generate(IPropertyValidationContext<TEntity, TProperty> context)
     {
-        var metadata = _metadataGenerator.Generate(context, propertyValue);
+        var collectionIndex = GetCollectionIndex(context);
+
+        var propertyName = GetPropertyName(collectionIndex);
+        var propertyValue = context.PropertyValue;
+        var metadata = _metadataGenerator.Generate(context.ValidationContext, propertyValue, collectionIndex);
         var description = _descriptionGenerator.Generate(propertyValue, metadata);
 
         return new RuleFailure
         {
-            PropertyName = _propertyName,
+            PropertyName = propertyName,
             PropertyValue = propertyValue,
             ErrorCode = _errorCode,
             ErrorDescription = description,
             ErrorMetadata = metadata,
         };
+    }
+
+    private static string? GetCollectionIndex(IPropertyValidationContext<TEntity, TProperty> context)
+    {
+        if (context.CollectionIndexBuilder == null)
+        {
+            return null;
+        }
+
+        var builder = new StringBuilder();
+        context.CollectionIndexBuilder.Invoke(builder);
+
+        return builder.ToString();
+    }
+
+    private string GetPropertyName(string? collectionIndex)
+    {
+        if (string.IsNullOrEmpty(collectionIndex))
+        {
+            return _propertyName;
+        }
+
+        return $"{_propertyName}{collectionIndex}";
     }
 }

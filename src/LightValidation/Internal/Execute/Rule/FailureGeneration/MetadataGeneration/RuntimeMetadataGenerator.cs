@@ -9,21 +9,25 @@ internal sealed class RuntimeMetadataGenerator<TEntity, TProperty> : IErrorMetad
 {
     private readonly KeyValuePair<string, Func<ValidationContext<TEntity>, TProperty, object?>>[] _metadataSelectors;
     private readonly KeyValuePair<string, object?>[]? _staticTemplate;
+    private readonly bool _insertCollectionIndex;
 
     public RuntimeMetadataGenerator(
         Dictionary<string, Func<ValidationContext<TEntity>, TProperty, object?>> runtimeMetadata,
-        Dictionary<string, object?> staticMetadata)
+        Dictionary<string, object?> staticMetadata,
+        bool insertCollectionIndex)
     {
-        Debug.Assert(runtimeMetadata.Count != 0, "Runtime metadata generator must have dynamic metadata.");
+        Debug.Assert(runtimeMetadata.Count != 0 || insertCollectionIndex,
+            "Runtime metadata generator must have dynamic metadata or collection index.");
 
         _metadataSelectors = runtimeMetadata.ToArray();
         _staticTemplate = staticMetadata.Count != 0 ? staticMetadata.ToArray() : null;
+        _insertCollectionIndex = insertCollectionIndex;
     }
 
-    public IReadOnlyDictionary<string, object?> Generate(ValidationContext<TEntity> context, TProperty propertyValue)
+    public IReadOnlyDictionary<string, object?> Generate(
+        ValidationContext<TEntity> context, TProperty propertyValue, string? collectionIndex)
     {
-        var capacity = _metadataSelectors.Length + _staticTemplate?.Length ?? 0;
-        var metadata = new Dictionary<string, object?>(capacity);
+        var metadata = CreateMetadata();
 
         for (var i = 0; i < _metadataSelectors.Length; i++)
         {
@@ -41,6 +45,27 @@ internal sealed class RuntimeMetadataGenerator<TEntity, TProperty> : IErrorMetad
             }
         }
 
+        if (_insertCollectionIndex)
+        {
+            metadata.Add(MetadataKey.CollectionIndex, collectionIndex);
+        }
+
         return metadata;
+    }
+
+    private Dictionary<string, object?> CreateMetadata()
+    {
+        var capacity = _metadataSelectors.Length;
+        if (_staticTemplate != null)
+        {
+            capacity += _staticTemplate.Length;
+        }
+
+        if (_insertCollectionIndex)
+        {
+            capacity++;
+        }
+
+        return new Dictionary<string, object?>(capacity);
     }
 }

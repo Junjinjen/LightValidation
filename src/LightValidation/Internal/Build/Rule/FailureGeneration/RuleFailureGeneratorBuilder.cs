@@ -154,8 +154,10 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
 
         var errorCode = GetErrorCode(ruleType);
         var errorDescription = GetErrorDescription(ruleType);
-        var metadataGenerator = CreateMetadataGenerator();
-        var descriptionGenerator = CreateDescriptionGenerator(propertyName, errorDescription);
+
+        var insertCollectionIndex = HasCollectionIndexFormatting(errorDescription);
+        var metadataGenerator = CreateMetadataGenerator(insertCollectionIndex);
+        var descriptionGenerator = CreateDescriptionGenerator(propertyName, errorDescription, insertCollectionIndex);
 
         var parameters = new RuleFailureGeneratorParameters<TEntity, TProperty>
         {
@@ -174,7 +176,9 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         [CallerArgumentExpression(nameof(value))] string? paramName = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(value, paramName);
-        if (value == MetadataKey.PropertyName || (!allowPropertyValueName && value == MetadataKey.PropertyValue))
+        if (value == MetadataKey.PropertyName ||
+            value == MetadataKey.CollectionIndex ||
+            (!allowPropertyValueName && value == MetadataKey.PropertyValue))
         {
             throw new ArgumentException(
                 $"Unable to use the reserved metadata key \"{value}\".", paramName);
@@ -184,6 +188,11 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
     private static bool HasPropertyValueFormatting(string errorDescription)
     {
         return errorDescription.ContainsMetadataKey(MetadataKey.PropertyValue);
+    }
+
+    private static bool HasCollectionIndexFormatting(string errorDescription)
+    {
+        return errorDescription.ContainsMetadataKey(MetadataKey.CollectionIndex);
     }
 
     private string GetErrorCode(Type ruleType)
@@ -216,29 +225,32 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         return _defaultRuleConfiguration.GetErrorDescription(ruleType);
     }
 
-    private IErrorMetadataGenerator<TEntity, TProperty> CreateMetadataGenerator()
+    private IErrorMetadataGenerator<TEntity, TProperty> CreateMetadataGenerator(bool insertCollectionIndex)
     {
-        if (_runtimeMetadata.Count != 0)
+        if (_runtimeMetadata.Count != 0 || insertCollectionIndex)
         {
-            return _runtimeMetadataGeneratorFactory.Create(_runtimeMetadata, _staticMetadata);
+            return _runtimeMetadataGeneratorFactory.Create(_runtimeMetadata, _staticMetadata, insertCollectionIndex);
         }
 
         return _staticMetadataGeneratorFactory.Create<TEntity, TProperty>(_staticMetadata);
     }
 
     private IErrorDescriptionGenerator<TProperty> CreateDescriptionGenerator(
-        string propertyName, string errorDescription)
+        string propertyName, string errorDescription, bool insertCollectionIndex)
     {
         if (_runtimeMetadata.Count != 0 ||
+            insertCollectionIndex ||
             HasPropertyValueFormatting(errorDescription) ||
             HasStaticMetadataForLocalization(errorDescription))
         {
+            var runtimeMetadataKeys = GetRuntimeMetadataKeys(insertCollectionIndex);
+
             var parameters = new RuntimeDescriptionGeneratorParameters
             {
                 PropertyName = propertyName,
                 ErrorDescription = errorDescription,
                 StaticMetadata = _staticMetadata,
-                RuntimeMetadataKeys = _runtimeMetadata.Keys,
+                RuntimeMetadataKeys = runtimeMetadataKeys,
                 MetadataLocalizers = _metadataLocalizers,
             };
 
@@ -252,5 +264,15 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
     {
         return _staticMetadata.Any(
             x => errorDescription.ContainsMetadataKey(x.Key) && _metadataLocalizers.ContainsKey(x.Key));
+    }
+
+    private IEnumerable<string> GetRuntimeMetadataKeys(bool insertCollectionIndex)
+    {
+        if (!insertCollectionIndex)
+        {
+            return _runtimeMetadata.Keys;
+        }
+
+        return _runtimeMetadata.Keys.Concat([MetadataKey.CollectionIndex]);
     }
 }
