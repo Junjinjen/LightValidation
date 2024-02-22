@@ -3,38 +3,38 @@ using System.Diagnostics;
 
 namespace LightValidation.Internal.Build;
 
-internal abstract class BuilderBase
+internal abstract class BuildContextBase
 {
-    private const string DefaultErrorMessage = "Unable to perform an operation after validation has been built.";
+    private const string DefaultErrorMessage = "Unable to access build context data after validation has been built.";
 
     private readonly string _errorMessage;
 
-    private bool _isBuilt;
-
-    protected BuilderBase(string errorMessage)
+    protected BuildContextBase(string errorMessage)
     {
         _errorMessage = errorMessage;
     }
 
-    protected BuilderBase()
+    protected BuildContextBase()
         : this(DefaultErrorMessage)
     {
     }
 
+    protected abstract bool IsBuilt { get; }
+
     [DebuggerStepThrough]
     protected void EnsureNotBuilt()
     {
-        if (_isBuilt)
+        if (IsBuilt)
         {
             throw new InvalidOperationException(_errorMessage);
         }
     }
 
     [DebuggerStepThrough]
-    protected void SetBuilt()
+    protected T ReturnWithBuildCheck<T>(T value)
     {
         EnsureNotBuilt();
 
-        _isBuilt = true;
+        return value;
     }
 }

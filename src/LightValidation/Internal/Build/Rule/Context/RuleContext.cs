@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Build.Rule.Context;
 
-internal sealed class RuleContext<TEntity, TProperty> : IRuleBuildContext<TEntity, TProperty>
+internal sealed class RuleContext<TEntity, TProperty> : BuildContextBase, IRuleBuildContext<TEntity, TProperty>
 {
     private readonly IRuleFailureGeneratorBuilder<TEntity, TProperty> _ruleFailureGeneratorBuilder;
     private readonly IPropertyConditionBuilder<TEntity, TProperty> _propertyConditionBuilder;
@@ -24,44 +24,61 @@ internal sealed class RuleContext<TEntity, TProperty> : IRuleBuildContext<TEntit
         _propertyContext = propertyContext;
     }
 
-    public Type ValidatorType => _propertyContext.ValidatorType;
+    public Type ValidatorType => ReturnWithBuildCheck(_propertyContext.ValidatorType);
 
-    public LambdaExpression PropertySelectorExpression => _propertyContext.PropertySelectorExpression;
+    public LambdaExpression PropertySelectorExpression =>
+        ReturnWithBuildCheck(_propertyContext.PropertySelectorExpression);
 
-    public Delegate PropertySelector => _propertyContext.PropertySelector;
+    public Delegate PropertySelector => ReturnWithBuildCheck(_propertyContext.PropertySelector);
+
+    protected override bool IsBuilt => _propertyContext.EntityBuildContext.IsValidationBuilt;
 
     public IMetadataProvider CreateMetadataProvider(string key)
     {
+        EnsureNotBuilt();
+
         return _ruleFailureGeneratorBuilder.CreateMetadataProvider(key);
     }
 
     public void AddCondition(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition)
     {
+        EnsureNotBuilt();
+
         _propertyConditionBuilder.AddCondition(condition);
     }
 
     public void SetDefaultErrorCode(string defaultErrorCode)
     {
+        EnsureNotBuilt();
+
         _ruleFailureGeneratorBuilder.SetDefaultErrorCode(defaultErrorCode);
     }
 
     public void SetDefaultErrorDescription(string defaultErrorDescription)
     {
+        EnsureNotBuilt();
+
         _ruleFailureGeneratorBuilder.SetDefaultErrorDescription(defaultErrorDescription);
     }
 
     public void AddErrorMetadata(string key, object? value)
     {
+        EnsureNotBuilt();
+
         _ruleFailureGeneratorBuilder.AddErrorMetadata(key, value);
     }
 
     public void AddErrorMetadata(string key, Func<ValidationContext<TEntity>, TProperty, object?> valueSelector)
     {
+        EnsureNotBuilt();
+
         _ruleFailureGeneratorBuilder.AddErrorMetadata(key, valueSelector);
     }
 
     public void SetMetadataLocalization(string key, Func<object?, string> localizer)
     {
+        EnsureNotBuilt();
+
         _ruleFailureGeneratorBuilder.SetMetadataLocalization(key, localizer);
     }
 }

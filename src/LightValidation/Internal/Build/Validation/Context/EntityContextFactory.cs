@@ -9,12 +9,10 @@ internal sealed class EntityContextFactory : IEntityContextFactory
 {
     public IEntityContextInternal Create(in EntityContextParameters parameters)
     {
-        return new EntityContext
-        {
-            ValidatorType = parameters.ValidatorType,
-            PropertyNames = parameters.PropertyNames,
-            ExecutionModeByAttribute = parameters.ExecutionModeByAttribute,
-            DefaultExecutionMode = parameters.DefaultExecutionMode,
-        };
+        return new EntityContext(
+            parameters.DefaultExecutionMode,
+            parameters.ValidatorType,
+            parameters.ExecutionModeByAttribute,
+            parameters.PropertyNames);
     }
 }

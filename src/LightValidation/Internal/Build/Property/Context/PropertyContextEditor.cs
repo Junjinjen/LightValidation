@@ -69,12 +69,12 @@ internal sealed class PropertyContextEditor : BuilderBase, IPropertyContextEdito
 
         var parameters = new PropertyContextParameters
         {
-            EntityBuildContext = context.EntityBuildContext,
-            ExecutionModeByAttribute = _executionModeByAttribute ?? context.ExecutionModeByAttribute,
-            DefaultExecutionMode = _defaultExecutionMode ?? context.DefaultExecutionMode,
             PropertySelectorExpression = context.PropertySelectorExpression,
+            DefaultExecutionMode = _defaultExecutionMode ?? context.DefaultExecutionMode,
             PropertySelector = context.PropertySelector,
             PropertyName = _propertyName ?? context.PropertyName,
+            ExecutionModeByAttribute = _executionModeByAttribute ?? context.ExecutionModeByAttribute,
+            EntityBuildContext = context.EntityBuildContext,
         };
 
         return _propertyContextFactory.Create(parameters);

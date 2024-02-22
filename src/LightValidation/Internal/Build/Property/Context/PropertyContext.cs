@@ -6,24 +6,54 @@ using System.Linq.Expressions;
 
 namespace LightValidation.Internal.Build.Property.Context;
 
-internal sealed class PropertyContext : IPropertyBuildContext
+internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
 {
-    public required IEntityBuildContext EntityBuildContext { get; init; }
+    private readonly IReadOnlyDictionary<Type, ExecutionMode> _executionModeByAttribute;
+    private readonly IEntityBuildContext _entityBuildContext;
 
-    public Type ValidatorType => EntityBuildContext.ValidatorType;
+    private readonly LambdaExpression _propertySelectorExpression;
+    private readonly ExecutionMode _defaultExecutionMode;
+    private readonly Delegate _propertySelector;
+    private readonly string _propertyName;
 
-    public required IReadOnlyDictionary<Type, ExecutionMode> ExecutionModeByAttribute { get; init; }
+    public PropertyContext(
+        LambdaExpression propertySelectorExpression,
+        ExecutionMode defaultExecutionMode,
+        Delegate propertySelector,
+        string propertyName,
+        IReadOnlyDictionary<Type, ExecutionMode> executionModeByAttribute,
+        IEntityBuildContext entityBuildContext)
+    {
+        _propertySelectorExpression = propertySelectorExpression;
+        _defaultExecutionMode = defaultExecutionMode;
+        _propertySelector = propertySelector;
+        _propertyName = propertyName;
 
-    public required ExecutionMode DefaultExecutionMode { get; init; }
+        _executionModeByAttribute = executionModeByAttribute;
+        _entityBuildContext = entityBuildContext;
+    }
 
-    public required LambdaExpression PropertySelectorExpression { get; init; }
+    public IEntityBuildContext EntityBuildContext => ReturnWithBuildCheck(_entityBuildContext);
 
-    public required Delegate PropertySelector { get; init; }
+    public Type ValidatorType => ReturnWithBuildCheck(EntityBuildContext.ValidatorType);
 
-    public required string PropertyName { get; init; }
+    public IReadOnlyDictionary<Type, ExecutionMode> ExecutionModeByAttribute =>
+        ReturnWithBuildCheck(_executionModeByAttribute);
+
+    public ExecutionMode DefaultExecutionMode => ReturnWithBuildCheck(_defaultExecutionMode);
+
+    public LambdaExpression PropertySelectorExpression => ReturnWithBuildCheck(_propertySelectorExpression);
+
+    public Delegate PropertySelector => ReturnWithBuildCheck(_propertySelector);
+
+    public string PropertyName => ReturnWithBuildCheck(_propertyName);
+
+    protected override bool IsBuilt => EntityBuildContext.IsValidationBuilt;
 
     public int RegisterMetadata()
     {
+        EnsureNotBuilt();
+
         return EntityBuildContext.RegisterMetadata();
     }
 }

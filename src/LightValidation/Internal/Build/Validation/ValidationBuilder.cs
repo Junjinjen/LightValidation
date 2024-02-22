@@ -174,15 +174,16 @@ internal sealed class ValidationBuilder<TEntity> : BuilderBase, IValidationBuild
 
         var parameters = new EntityContextParameters
         {
-            ValidatorType = validatorType,
-            PropertyNames = _propertyNames,
-            ExecutionModeByAttribute = _executionModeByAttribute,
             DefaultExecutionMode = _defaultExecutionMode,
+            ValidatorType = validatorType,
+            ExecutionModeByAttribute = _executionModeByAttribute,
+            PropertyNames = _propertyNames,
         };
 
         var entityContext = _entityContextFactory.Create(parameters);
         var entityValidators = _roots.Select(x => x.Build(entityContext)).WhereNotNull().ToArray();
         var nullEntityFailure = _nullEntityFailureBuilder.Build();
+        entityContext.SetBuilt();
 
         return _validationExecutorFactory.Create(entityValidators, nullEntityFailure, entityContext.MetadataCount);
     }

@@ -14,5 +14,7 @@ public interface IEntityBuildContext
 
     ExecutionMode DefaultExecutionMode { get; }
 
+    bool IsValidationBuilt { get; }
+
     int RegisterMetadata();
 }

@@ -11,14 +11,12 @@ internal sealed class PropertyContextFactory : IPropertyContextFactory
 {
     public IPropertyBuildContext Create(in PropertyContextParameters parameters)
     {
-        return new PropertyContext
-        {
-            EntityBuildContext = parameters.EntityBuildContext,
-            ExecutionModeByAttribute = parameters.ExecutionModeByAttribute,
-            DefaultExecutionMode = parameters.DefaultExecutionMode,
-            PropertySelectorExpression = parameters.PropertySelectorExpression,
-            PropertySelector = parameters.PropertySelector,
-            PropertyName = parameters.PropertyName,
-        };
+        return new PropertyContext(
+            parameters.PropertySelectorExpression,
+            parameters.DefaultExecutionMode,
+            parameters.PropertySelector,
+            parameters.PropertyName,
+            parameters.ExecutionModeByAttribute,
+            parameters.EntityBuildContext);
     }
 }
