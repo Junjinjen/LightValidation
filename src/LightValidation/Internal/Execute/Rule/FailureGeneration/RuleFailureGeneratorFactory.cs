@@ -12,6 +12,7 @@ internal sealed class RuleFailureGeneratorFactory : IRuleFailureGeneratorFactory
         in RuleFailureGeneratorParameters<TEntity, TProperty> parameters)
     {
         return new RuleFailureGenerator<TEntity, TProperty>(
+            parameters.ApplyIndexOnPropertyName,
             parameters.PropertyName,
             parameters.ErrorCode,
             parameters.MetadataGenerator,

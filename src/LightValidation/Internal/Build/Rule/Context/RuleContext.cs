@@ -47,18 +47,25 @@ internal sealed class RuleContext<TEntity, TProperty> : BuildContextBase, IRuleB
         _propertyConditionBuilder.AddCondition(condition);
     }
 
+    public void ApplyIndexOnPropertyName(bool value)
+    {
+        EnsureNotBuilt();
+
+        _ruleFailureGeneratorBuilder.ApplyIndexOnPropertyName(value, isDefaultMode: true);
+    }
+
     public void SetDefaultErrorCode(string defaultErrorCode)
     {
         EnsureNotBuilt();
 
-        _ruleFailureGeneratorBuilder.SetDefaultErrorCode(defaultErrorCode);
+        _ruleFailureGeneratorBuilder.SetErrorCode(defaultErrorCode, isDefaultMode: true);
     }
 
     public void SetDefaultErrorDescription(string defaultErrorDescription)
     {
         EnsureNotBuilt();
 
-        _ruleFailureGeneratorBuilder.SetDefaultErrorDescription(defaultErrorDescription);
+        _ruleFailureGeneratorBuilder.SetErrorDescription(defaultErrorDescription, isDefaultMode: true);
     }
 
     public void AddErrorMetadata(string key, object? value)

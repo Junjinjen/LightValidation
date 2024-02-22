@@ -79,18 +79,25 @@ internal sealed class RuleValidationBuilder<TEntity, TProperty, TRule>
         _ruleFailureGeneratorBuilder.SetPropertyName(propertyName);
     }
 
+    public void ApplyIndexOnPropertyName(bool value)
+    {
+        EnsureValidState();
+
+        _ruleFailureGeneratorBuilder.ApplyIndexOnPropertyName(value, isDefaultMode: false);
+    }
+
     public void SetErrorCode(string errorCode)
     {
         EnsureValidState();
 
-        _ruleFailureGeneratorBuilder.SetErrorCode(errorCode);
+        _ruleFailureGeneratorBuilder.SetErrorCode(errorCode, isDefaultMode: false);
     }
 
     public void SetErrorDescription(string errorDescription)
     {
         EnsureValidState();
 
-        _ruleFailureGeneratorBuilder.SetErrorDescription(errorDescription);
+        _ruleFailureGeneratorBuilder.SetErrorDescription(errorDescription, isDefaultMode: false);
     }
 
     public void AddErrorMetadata(string key, object? value)

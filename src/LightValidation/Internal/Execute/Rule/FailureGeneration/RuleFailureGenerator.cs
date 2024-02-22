@@ -16,17 +16,21 @@ internal sealed class RuleFailureGenerator<TEntity, TProperty> : IRuleFailureGen
     private readonly IErrorMetadataGenerator<TEntity, TProperty> _metadataGenerator;
     private readonly IErrorDescriptionGenerator<TProperty> _descriptionGenerator;
 
+    private readonly bool _applyIndexOnPropertyName;
     private readonly string _propertyName;
     private readonly string _errorCode;
 
     public RuleFailureGenerator(
+        bool applyIndexOnPropertyName,
         string propertyName,
         string errorCode,
         IErrorMetadataGenerator<TEntity, TProperty> metadataGenerator,
         IErrorDescriptionGenerator<TProperty> descriptionGenerator)
     {
+        _applyIndexOnPropertyName = applyIndexOnPropertyName;
         _propertyName = propertyName;
         _errorCode = errorCode;
+
         _metadataGenerator = metadataGenerator;
         _descriptionGenerator = descriptionGenerator;
     }
@@ -65,7 +69,7 @@ internal sealed class RuleFailureGenerator<TEntity, TProperty> : IRuleFailureGen
 
     private string GetPropertyName(string? collectionIndex)
     {
-        if (string.IsNullOrEmpty(collectionIndex))
+        if (!_applyIndexOnPropertyName || string.IsNullOrEmpty(collectionIndex))
         {
             return _propertyName;
         }

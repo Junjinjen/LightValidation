@@ -40,7 +40,7 @@ public static class RuleChainBuilderExtensions
         return ruleValidationBuilder;
     }
 
-    public static IRuleChainBuilder<TEntity, IEnumerable<TProperty>> ForEach<TEntity, TProperty>(
+    public static ICollectionConfiguration<TEntity, TProperty> ForEach<TEntity, TProperty>(
         this IRuleChainBuilder<TEntity, IEnumerable<TProperty>?> ruleChainBuilder,
         Action<IRuleChainBuilderInitial<TEntity, TProperty>> buildAction)
     {
@@ -48,13 +48,12 @@ public static class RuleChainBuilderExtensions
         ArgumentNullException.ThrowIfNull(buildAction);
 
         var collectionRuleChainBuilderFactory = DependencyResolver.CollectionRuleChainBuilderFactory;
-        var collectionRuleChainBuilder = collectionRuleChainBuilderFactory.Create<TEntity, TProperty>(
-            ruleChainBuilder.ValidationBuilder);
+        var collectionRuleChainBuilder = collectionRuleChainBuilderFactory.Create(ruleChainBuilder!);
 
         ruleChainBuilder.AddPropertyValidator(collectionRuleChainBuilder);
         buildAction.Invoke(collectionRuleChainBuilder);
 
-        return ruleChainBuilder!;
+        return collectionRuleChainBuilder;
     }
 
     public static IValidatorConfiguration<TEntity, TProperty> UseValidator<TEntity, TProperty, TValidator>(

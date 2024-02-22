@@ -17,6 +17,8 @@ public interface IRuleBuildContext<TEntity, out TProperty>
 
     void AddCondition(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition);
 
+    void ApplyIndexOnPropertyName(bool value);
+
     void SetDefaultErrorCode(string defaultErrorCode);
 
     void SetDefaultErrorDescription(string defaultErrorDescription);

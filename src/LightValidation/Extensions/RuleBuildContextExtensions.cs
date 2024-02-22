@@ -70,6 +70,26 @@ public static class RuleBuildContextExtensions
         return ruleBuildContext;
     }
 
+    public static IRuleBuildContext<TEntity, TProperty> WithIndexOnPropertyName<TEntity, TProperty>(
+        this IRuleBuildContext<TEntity, TProperty> ruleBuildContext)
+    {
+        ArgumentNullException.ThrowIfNull(ruleBuildContext);
+
+        ruleBuildContext.ApplyIndexOnPropertyName(value: true);
+
+        return ruleBuildContext;
+    }
+
+    public static IRuleBuildContext<TEntity, TProperty> WithoutIndexOnPropertyName<TEntity, TProperty>(
+        this IRuleBuildContext<TEntity, TProperty> ruleBuildContext)
+    {
+        ArgumentNullException.ThrowIfNull(ruleBuildContext);
+
+        ruleBuildContext.ApplyIndexOnPropertyName(value: false);
+
+        return ruleBuildContext;
+    }
+
     public static IRuleBuildContext<TEntity, TProperty> WithDefaultErrorCode<TEntity, TProperty>(
         this IRuleBuildContext<TEntity, TProperty> ruleBuildContext, string defaultErrorCode)
     {

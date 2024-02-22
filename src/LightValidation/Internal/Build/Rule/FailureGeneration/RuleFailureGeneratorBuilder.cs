@@ -16,13 +16,11 @@ internal interface IRuleFailureGeneratorBuilder<TEntity, TProperty>
 
     void SetPropertyName(string propertyName);
 
-    void SetErrorCode(string errorCode);
+    void ApplyIndexOnPropertyName(bool value, bool isDefaultMode);
 
-    void SetDefaultErrorCode(string defaultErrorCode);
+    void SetErrorCode(string errorCode, bool isDefaultMode);
 
-    void SetErrorDescription(string errorDescription);
-
-    void SetDefaultErrorDescription(string defaultErrorDescription);
+    void SetErrorDescription(string errorDescription, bool isDefaultMode);
 
     void AddErrorMetadata(string key, object? value);
 
@@ -47,7 +45,9 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
     private readonly Dictionary<string, Func<ValidationContext<TEntity>, TProperty, object?>> _runtimeMetadata = [];
     private readonly Dictionary<string, Func<object?, string>> _metadataLocalizers = [];
     private readonly Dictionary<string, object?> _staticMetadata = [];
+    private bool _defaultApplyIndexOnPropertyName = true;
     private string? _defaultErrorDescription;
+    private bool? _applyIndexOnPropertyName;
     private string? _defaultErrorCode;
     private string? _errorDescription;
     private string? _propertyName;
@@ -90,36 +90,45 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         _propertyName = propertyName;
     }
 
-    public void SetErrorCode(string errorCode)
+    public void ApplyIndexOnPropertyName(bool value, bool isDefaultMode)
+    {
+        EnsureNotBuilt();
+
+        if (isDefaultMode)
+        {
+            _defaultApplyIndexOnPropertyName = value;
+            return;
+        }
+
+        _applyIndexOnPropertyName = value;
+    }
+
+    public void SetErrorCode(string errorCode, bool isDefaultMode)
     {
         ArgumentException.ThrowIfNullOrEmpty(errorCode);
         EnsureNotBuilt();
 
+        if (isDefaultMode)
+        {
+            _defaultErrorCode = errorCode;
+            return;
+        }
+
         _errorCode = errorCode;
     }
 
-    public void SetDefaultErrorCode(string defaultErrorCode)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(defaultErrorCode);
-        EnsureNotBuilt();
-
-        _defaultErrorCode = defaultErrorCode;
-    }
-
-    public void SetErrorDescription(string errorDescription)
+    public void SetErrorDescription(string errorDescription, bool isDefaultMode)
     {
         ArgumentException.ThrowIfNullOrEmpty(errorDescription);
         EnsureNotBuilt();
 
+        if (isDefaultMode)
+        {
+            _defaultErrorDescription = errorDescription;
+            return;
+        }
+
         _errorDescription = errorDescription;
-    }
-
-    public void SetDefaultErrorDescription(string defaultErrorDescription)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(defaultErrorDescription);
-        EnsureNotBuilt();
-
-        _defaultErrorDescription = defaultErrorDescription;
     }
 
     public void AddErrorMetadata(string key, object? value)
@@ -161,6 +170,7 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
 
         var parameters = new RuleFailureGeneratorParameters<TEntity, TProperty>
         {
+            ApplyIndexOnPropertyName = _applyIndexOnPropertyName ?? _defaultApplyIndexOnPropertyName,
             PropertyName = propertyName,
             ErrorCode = errorCode,
             MetadataGenerator = metadataGenerator,

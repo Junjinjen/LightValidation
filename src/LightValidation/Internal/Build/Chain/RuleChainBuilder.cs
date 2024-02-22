@@ -7,13 +7,13 @@ using System.Linq;
 
 namespace LightValidation.Internal.Build.Chain;
 
-internal interface IRuleChainBuilder<TEntity, TProperty>
+internal interface IRuleChainBuilderInternal<TEntity, TProperty>
     : IRuleChainBuilderInitial<TEntity, TProperty>, IPropertyValidatorBuilder<TEntity, TProperty>
 {
 }
 
 internal sealed class RuleChainBuilder<TEntity, TProperty>
-    : RuleChainBuilderBase<TEntity, TProperty>, IRuleChainBuilder<TEntity, TProperty>
+    : RuleChainBuilderBase<TEntity, TProperty>, IRuleChainBuilderInternal<TEntity, TProperty>
 {
     private readonly IRuleChainFactory _ruleChainFactory;
 

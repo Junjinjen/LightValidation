@@ -155,6 +155,48 @@ public static class RuleConfigurationExtensions
         return ruleConfiguration;
     }
 
+    public static IRuleConfiguration<TEntity, TProperty> WithIndexOnPropertyName<TEntity, TProperty>(
+        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration)
+    {
+        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+
+        ruleConfiguration.ApplyIndexOnPropertyName(value: true);
+
+        return ruleConfiguration;
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty, TRule> WithIndexOnPropertyName<TEntity, TProperty, TRule>(
+        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration)
+        where TRule : notnull
+    {
+        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+
+        ruleConfiguration.ApplyIndexOnPropertyName(value: true);
+
+        return ruleConfiguration;
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty> WithoutIndexOnPropertyName<TEntity, TProperty>(
+        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration)
+    {
+        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+
+        ruleConfiguration.ApplyIndexOnPropertyName(value: false);
+
+        return ruleConfiguration;
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty, TRule> WithoutIndexOnPropertyName<TEntity, TProperty, TRule>(
+        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration)
+        where TRule : notnull
+    {
+        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+
+        ruleConfiguration.ApplyIndexOnPropertyName(value: false);
+
+        return ruleConfiguration;
+    }
+
     public static IRuleConfiguration<TEntity, TProperty> WithErrorCode<TEntity, TProperty>(
         this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string errorCode)
     {

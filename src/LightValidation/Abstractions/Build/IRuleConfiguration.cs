@@ -12,6 +12,8 @@ public interface IRuleConfiguration<TEntity, out TProperty> : IRuleChainBuilder<
 
     void SetPropertyName(string propertyName);
 
+    void ApplyIndexOnPropertyName(bool value);
+
     void SetErrorCode(string errorCode);
 
     void SetErrorDescription(string errorDescription);

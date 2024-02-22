@@ -3,7 +3,6 @@ using LightValidation.Internal.Execute.Chain.CollectionContext.Metadata;
 using LightValidation.Result;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text;
 
 namespace LightValidation.Internal.Execute.Chain.CollectionContext;
@@ -20,10 +19,15 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
     private readonly IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> _collectionContext;
     private readonly ICollectionMetadataFactory _collectionMetadataFactory;
 
+    private readonly Action<CollectionIndexContext<TEntity, TProperty>> _indexBuilder;
+
     public ElementContext(
+        Action<CollectionIndexContext<TEntity, TProperty>> indexBuilder,
         IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> collectionContext,
         ICollectionMetadataFactory collectionMetadataFactory)
     {
+        _indexBuilder = indexBuilder;
+
         _collectionContext = collectionContext;
         _collectionMetadataFactory = collectionMetadataFactory;
     }
@@ -81,6 +85,15 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
     private void BuildCollectionIndex(StringBuilder builder)
     {
         _collectionContext.CollectionIndexBuilder?.Invoke(builder);
-        builder.Append(CultureInfo.InvariantCulture, $"[{ElementIndex}]");
+
+        var context = new CollectionIndexContext<TEntity, TProperty>
+        {
+            StringBuilder = builder,
+            Entity = EntityValidationContext.ValidationContext.Entity,
+            Element = PropertyValue,
+            Index = ElementIndex,
+        };
+
+        _indexBuilder.Invoke(context);
     }
 }

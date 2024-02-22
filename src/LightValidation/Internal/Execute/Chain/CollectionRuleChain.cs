@@ -13,13 +13,18 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
 {
     private readonly IElementContextFactory _elementContextFactory;
 
+    private readonly Action<CollectionIndexContext<TEntity, TProperty>> _indexBuilder;
+
     public CollectionRuleChain(
         Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>>? condition,
         IPropertyValidator<TEntity, TProperty>[] propertyValidators,
         int metadataId,
+        Action<CollectionIndexContext<TEntity, TProperty>> indexBuilder,
         IElementContextFactory elementContextFactory)
         : base(condition, propertyValidators, metadataId)
     {
+        _indexBuilder = indexBuilder;
+
         _elementContextFactory = elementContextFactory;
     }
 
@@ -90,7 +95,7 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
             return null;
         }
 
-        var elementContext = _elementContextFactory.Create(context, elements);
+        var elementContext = _elementContextFactory.Create(_indexBuilder, context, elements);
         context.SetValidationMetadata(_metadataId, elementContext);
 
         return elementContext;

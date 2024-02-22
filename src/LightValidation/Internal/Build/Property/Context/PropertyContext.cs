@@ -48,7 +48,7 @@ internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
 
     public string PropertyName => ReturnWithBuildCheck(_propertyName);
 
-    protected override bool IsBuilt => EntityBuildContext.IsValidationBuilt;
+    protected override bool IsBuilt => _entityBuildContext.IsValidationBuilt;
 
     public int RegisterMetadata()
     {
