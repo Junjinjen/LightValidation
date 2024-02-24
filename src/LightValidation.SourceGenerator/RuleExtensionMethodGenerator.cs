@@ -17,10 +17,11 @@ public sealed class RuleExtensionMethodGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var methodInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
-            AttributeInfoCollector.AttributeFullName,
-            (node, _) => node is ClassDeclarationSyntax,
-            (context, cancellationToken) => MethodInfoCollector.GetMethodInfo(context, cancellationToken))
+        var methodInfos = context.SyntaxProvider
+            .ForAttributeWithMetadataName(
+                AttributeInfoCollector.AttributeFullName,
+                (node, _) => node is ClassDeclarationSyntax,
+                (context, cancellationToken) => MethodInfoCollector.GetMethodInfo(context, cancellationToken))
             .Where(x => x != null);
 
         context.RegisterSourceOutput(
