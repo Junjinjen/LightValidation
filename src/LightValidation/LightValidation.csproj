@@ -4,6 +4,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <SourceGeneratorTargetFramework>netstandard2.0</SourceGeneratorTargetFramework>
     <Nullable>enable</Nullable>
+    <RepositoryUrl>https://github.com/Junjinjen/LightValidation</RepositoryUrl>
+    <Copyright>Copyright (c) Alexander Kravchenko 2024</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Authors>Junjinjen</Authors>
   </PropertyGroup>
 
   <ItemGroup>
