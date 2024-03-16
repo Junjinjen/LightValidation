@@ -1,19 +1,13 @@
-﻿using LightValidation.Abstractions.Execute;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq.Expressions;
 
 namespace LightValidation.Abstractions.Build;
 
-public interface IPropertyBuildContext
+public interface IPropertyBuildContext : IExecutionModeContext
 {
     IEntityBuildContext EntityBuildContext { get; }
 
     Type ValidatorType { get; }
-
-    IReadOnlyDictionary<Type, ExecutionMode> ExecutionModeByAttribute { get; }
-
-    ExecutionMode DefaultExecutionMode { get; }
 
     LambdaExpression PropertySelectorExpression { get; }
 

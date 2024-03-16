@@ -145,8 +145,7 @@ internal sealed class RuleValidationBuilder<TEntity, TProperty, TRule>
         var rule = _ruleBuilder.Build(ruleContext);
 
         var ruleType = Rule.GetType();
-        var mode = _executionModeProvider.GetExecutionMode(
-            context.ExecutionModeByAttribute, context.DefaultExecutionMode, ruleType);
+        var mode = _executionModeProvider.GetExecutionMode(context, ruleType);
 
         var condition = _propertyConditionBuilder.Build();
         var failureGenerator = _ruleFailureGeneratorBuilder.Build(context.PropertyName, ruleType);
