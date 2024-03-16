@@ -103,8 +103,8 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
         var validationContext = validator.CreateValidationContext(new ValidationContextParameters<TProperty>
         {
             Entity = context.PropertyValue,
+            Cache = context.ValidationContext.Cache,
             RuleSets = context.ValidationContext.RuleSets,
-            ValidationCache = context.ValidationContext.ValidationCache,
             CancellationToken = context.ValidationContext.CancellationToken,
         });
 

@@ -1,5 +1,4 @@
-﻿using LightValidation.Abstractions;
-using LightValidation.Internal;
+﻿using LightValidation.Internal;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,7 +10,7 @@ namespace LightValidation;
 
 [DebuggerDisplay("Count = {Count}")]
 [DebuggerTypeProxy(typeof(CollectionDebugView<KeyValuePair<string, object>>))]
-public sealed class ValidationCache : IValidationCache
+public sealed class ValidationCache : IReadOnlyCollection<KeyValuePair<string, object>>
 {
     private Dictionary<string, object?>? _cache;
 

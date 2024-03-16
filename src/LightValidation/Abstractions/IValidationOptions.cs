@@ -2,7 +2,7 @@
 
 public interface IValidationOptions
 {
-    IValidationOptions IncludeRuleSets(params string[] ruleSets);
+    IValidationOptions UseCache(ValidationCache cache);
 
-    IValidationOptions UseValidationCache(IValidationCache cache);
+    IValidationOptions IncludeRuleSets(params string[] ruleSets);
 }

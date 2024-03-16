@@ -43,7 +43,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
         {
             ExecutedRuleSets = validationContext.RuleSets,
             BrokenRules = brokenRules,
-            ValidationCache = validationContext.ValidationCache,
+            Cache = validationContext.Cache,
         };
     }
 
@@ -78,7 +78,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
         {
             Entity = parameters.Entity!,
             RuleSets = parameters.RuleSets,
-            ValidationCache = parameters.ValidationCache,
+            Cache = parameters.Cache,
             CancellationToken = parameters.CancellationToken,
         };
     }
@@ -109,7 +109,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
     private ValidationContext<TEntity> CreateValidationContext(
         TEntity? entity, Action<IValidationOptions>? configurationAction, CancellationToken cancellationToken)
     {
-        IValidationCache? validationCache = null;
+        ValidationCache? cache = null;
         RuleSetCollection? ruleSets = null;
 
         if (configurationAction != null)
@@ -118,17 +118,15 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
             var validationOptions = validationOptionsFactory.Create();
             configurationAction.Invoke(validationOptions);
 
-            validationCache = validationOptions.ValidationCache;
+            cache = validationOptions.Cache;
             ruleSets = validationOptions.RuleSets;
         }
-
-        var defaultValidationCacheFactory = DependencyResolver.DefaultValidationCacheFactory;
 
         var parameters = new ValidationContextParameters<TEntity>
         {
             Entity = entity,
+            Cache = cache ?? [],
             RuleSets = ruleSets ?? RuleSetCollection.Default,
-            ValidationCache = validationCache ?? defaultValidationCacheFactory.Create(),
             CancellationToken = cancellationToken,
         };
 

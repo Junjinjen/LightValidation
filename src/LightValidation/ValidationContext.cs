@@ -20,9 +20,9 @@ public sealed class ValidationContext<TEntity> : IDependencyResolver
 
     public required TEntity Entity { get; init; }
 
-    public required RuleSetCollection RuleSets { get; init; }
+    public required ValidationCache Cache { get; init; }
 
-    public required IValidationCache ValidationCache { get; init; }
+    public required RuleSetCollection RuleSets { get; init; }
 
     public required CancellationToken CancellationToken { get; init; }
 

@@ -1,5 +1,4 @@
-﻿using LightValidation.Abstractions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace LightValidation.Result;
@@ -21,9 +20,9 @@ public class ValidationException : Exception
     public ValidationException(string? message, Exception? innerException)
         : base(message, innerException)
     {
+        Cache = new ValidationCache();
         ExecutedRuleSets = EmptyRuleSetCollection;
         BrokenRules = Array.Empty<RuleFailure>();
-        ValidationCache = new ValidationCache();
     }
 
     public ValidationException(ValidationResult validationResult)
@@ -41,16 +40,16 @@ public class ValidationException : Exception
     {
         ArgumentNullException.ThrowIfNull(validationResult);
 
+        Cache = validationResult.Cache;
         ExecutedRuleSets = validationResult.ExecutedRuleSets;
         BrokenRules = validationResult.BrokenRules;
-        ValidationCache = validationResult.ValidationCache;
     }
+
+    public ValidationCache Cache { get; }
 
     public RuleSetCollection ExecutedRuleSets { get; }
 
     public IReadOnlyList<RuleFailure> BrokenRules { get; }
-
-    public IValidationCache ValidationCache { get; }
 
     private static string GetMessage(ValidationResult validationResult)
     {
