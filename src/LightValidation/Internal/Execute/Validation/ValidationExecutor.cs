@@ -2,6 +2,7 @@
 using LightValidation.Result;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Validation;
@@ -58,6 +59,7 @@ internal sealed class ValidationExecutor<TEntity> : IValidationExecutor<TEntity>
         return ValueTask.CompletedTask;
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     private async ValueTask ValidateInternal(IEntityValidationContext<TEntity> context, ExecutionMode currentMode)
     {
         foreach (var validator in _entityValidators)

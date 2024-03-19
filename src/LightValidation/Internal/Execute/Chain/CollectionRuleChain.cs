@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Chain;
@@ -28,6 +29,7 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
         _elementContextFactory = elementContextFactory;
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public override async ValueTask Validate(
         IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context, ExecutionMode currentMode)
     {
@@ -73,6 +75,7 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
         return CreateElementContext(context);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<IElementContext<TEntity, TProperty>?> CreateElementContext(
         IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context)
     {
@@ -101,6 +104,7 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
         return elementContext;
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<IList<TProperty>> FilterElements(
         IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context)
     {

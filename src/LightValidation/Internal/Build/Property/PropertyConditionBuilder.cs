@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Build.Property;
@@ -36,18 +37,24 @@ internal sealed class PropertyConditionBuilder<TEntity, TProperty>
 
         var conditions = _conditions.ToArray();
 
-        return async (context, value) =>
-        {
-            foreach (var condition in conditions)
-            {
-                var result = await condition.Invoke(context, value).ConfigureAwait(false);
-                if (!result)
-                {
-                    return false;
-                }
-            }
+        return (context, value) => ExecuteConditions(conditions, context, value);
+    }
 
-            return true;
-        };
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
+    private static async ValueTask<bool> ExecuteConditions(
+        Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>>[] conditions,
+        ValidationContext<TEntity> context,
+        TProperty value)
+    {
+        foreach (var condition in conditions)
+        {
+            var result = await condition.Invoke(context, value).ConfigureAwait(false);
+            if (!result)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

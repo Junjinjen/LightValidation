@@ -1,6 +1,7 @@
 ﻿using LightValidation.Abstractions.Execute;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Scope;
@@ -20,6 +21,7 @@ internal sealed class DependentScope<TEntity> : IEntityValidator<TEntity>
 
     public ExecutionModeCollection ExecutionModes { get; }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public async ValueTask Validate(IEntityValidationContext<TEntity> context, ExecutionMode currentMode)
     {
         Debug.Assert(ExecutionModes.Contains(currentMode),

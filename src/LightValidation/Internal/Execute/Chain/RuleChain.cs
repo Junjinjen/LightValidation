@@ -1,6 +1,7 @@
 ﻿using LightValidation.Abstractions.Execute;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Chain;
@@ -18,6 +19,7 @@ internal sealed class RuleChain<TEntity, TProperty> : RuleChainBase<TEntity, TPr
             "Rule chain with a single property validator must have a condition.");
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public override async ValueTask Validate(
         IPropertyValidationContext<TEntity, TProperty> context, ExecutionMode currentMode)
     {
@@ -63,6 +65,7 @@ internal sealed class RuleChain<TEntity, TProperty> : RuleChainBase<TEntity, TPr
         return ExecuteCondition(context);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<bool> ExecuteCondition(IPropertyValidationContext<TEntity, TProperty> context)
     {
         var result = await _condition!.Invoke(context.ValidationContext, context.PropertyValue).ConfigureAwait(false);

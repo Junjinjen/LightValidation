@@ -2,6 +2,7 @@
 using LightValidation.Internal.Execute.Nested.Context;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Nested;
@@ -37,6 +38,7 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
 
     public ExecutionModeCollection ExecutionModes { get; }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public async ValueTask Validate(IPropertyValidationContext<TEntity, TProperty> context, ExecutionMode currentMode)
     {
         Debug.Assert(ExecutionModes.Contains(currentMode),
@@ -84,6 +86,7 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
         return CreateNestedContext(context);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<INestedContext<TProperty>?> CreateNestedContext(
         IPropertyValidationContext<TEntity, TProperty> context)
     {

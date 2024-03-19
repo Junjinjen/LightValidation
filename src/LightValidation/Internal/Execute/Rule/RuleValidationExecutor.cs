@@ -3,6 +3,7 @@ using LightValidation.Internal.Execute.Rule.FailureGeneration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Rule;
@@ -63,6 +64,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
         return new(modes);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     private async ValueTask ValidateWithDependent(
         IPropertyValidationContext<TEntity, TProperty> context, ExecutionMode currentMode)
     {
@@ -91,6 +93,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
         await PreExecuteDependentScope(context, currentMode).ConfigureAwait(false);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     private async ValueTask ValidateWithoutDependent(IPropertyValidationContext<TEntity, TProperty> context)
     {
         var condition = await VerifyCondition(context).ConfigureAwait(false);
@@ -145,6 +148,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
         return _dependentScope!.Validate(context.EntityValidationContext, currentMode);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     private async ValueTask PreExecuteDependentScope(
         IPropertyValidationContext<TEntity, TProperty> context, ExecutionMode currentMode)
     {

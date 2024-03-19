@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LightValidation.Internal.Execute.Scope;
@@ -28,6 +29,7 @@ internal sealed class ConditionalScope<TEntity> : IEntityValidator<TEntity>
 
     public ExecutionModeCollection ExecutionModes { get; }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public async ValueTask Validate(IEntityValidationContext<TEntity> context, ExecutionMode currentMode)
     {
         Debug.Assert(ExecutionModes.Contains(currentMode),
@@ -72,6 +74,7 @@ internal sealed class ConditionalScope<TEntity> : IEntityValidator<TEntity>
         return ExecuteCondition(context);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<bool> ExecuteCondition(IEntityValidationContext<TEntity> context)
     {
         var result = await _condition.Invoke(context.ValidationContext).ConfigureAwait(false);

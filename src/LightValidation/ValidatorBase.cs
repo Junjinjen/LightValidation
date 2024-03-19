@@ -5,6 +5,7 @@ using LightValidation.Internal.Execute.Validation;
 using LightValidation.Result;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
         return Validate(entity, configurationAction: null, cancellationToken);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     public async ValueTask<ValidationResult> Validate(
         TEntity? entity,
         Action<IValidationOptions>? configurationAction,
@@ -52,6 +54,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
         return ValidateAndThrow(entity, configurationAction: null, cancellationToken);
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
     public async ValueTask ValidateAndThrow(
         TEntity? entity,
         Action<IValidationOptions>? configurationAction,
