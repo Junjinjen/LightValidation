@@ -83,21 +83,18 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
             return ValueTask.FromResult((INestedContext<TProperty>?)result);
         }
 
-        return CreateNestedContext(context);
-    }
-
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
-    private async ValueTask<INestedContext<TProperty>?> CreateNestedContext(
-        IPropertyValidationContext<TEntity, TProperty> context)
-    {
-        var condition = await VerifyCondition(context).ConfigureAwait(false);
-        if (!condition)
+        if (_condition == null)
         {
-            context.SetValidationMetadata(_metadataId, Constants.FalseObjectValue);
+            var result = CreateNestedContext(context);
 
-            return null;
+            return ValueTask.FromResult(result);
         }
 
+        return CreateNestedContextWithConditionCheck(context);
+    }
+
+    private INestedContext<TProperty>? CreateNestedContext(IPropertyValidationContext<TEntity, TProperty> context)
+    {
         var validator = _validatorProvider.Invoke(context.ValidationContext);
         validator.SetDependencyResolver(context.ValidationContext);
 
@@ -125,13 +122,20 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
         return nestedContext;
     }
 
-    private ValueTask<bool> VerifyCondition(IPropertyValidationContext<TEntity, TProperty> context)
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
+    private async ValueTask<INestedContext<TProperty>?> CreateNestedContextWithConditionCheck(
+        IPropertyValidationContext<TEntity, TProperty> context)
     {
-        if (_condition == null)
+        var condition = await _condition!
+            .Invoke(context.ValidationContext, context.PropertyValue).ConfigureAwait(false);
+
+        if (!condition)
         {
-            return ValueTask.FromResult(true);
+            context.SetValidationMetadata(_metadataId, Constants.FalseObjectValue);
+
+            return null;
         }
 
-        return _condition.Invoke(context.ValidationContext, context.PropertyValue);
+        return CreateNestedContext(context);
     }
 }

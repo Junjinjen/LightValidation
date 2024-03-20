@@ -90,6 +90,11 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
             return;
         }
 
+        if (!context.CanExecuteDependentRules)
+        {
+            return;
+        }
+
         await PreExecuteDependentScope(context, currentMode).ConfigureAwait(false);
     }
 
@@ -152,11 +157,6 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
     private async ValueTask PreExecuteDependentScope(
         IPropertyValidationContext<TEntity, TProperty> context, ExecutionMode currentMode)
     {
-        if (!context.CanExecuteDependentRules)
-        {
-            return;
-        }
-
         foreach (var mode in _dependentScope!.ExecutionModes)
         {
             if (mode > currentMode)

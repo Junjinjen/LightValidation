@@ -72,25 +72,28 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
             return ValueTask.FromResult((IElementContext<TEntity, TProperty>?)result);
         }
 
-        return CreateElementContext(context);
-    }
-
-    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
-    private async ValueTask<IElementContext<TEntity, TProperty>?> CreateElementContext(
-        IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context)
-    {
         var propertyValue = context.PropertyValue;
         if (propertyValue == null)
         {
             context.SetValidationMetadata(_metadataId, Constants.FalseObjectValue);
 
-            return null;
+            return ValueTask.FromResult<IElementContext<TEntity, TProperty>?>(null);
         }
 
-        var elements = _condition != null
-            ? await FilterElements(context).ConfigureAwait(false)
-            : propertyValue.ToArray();
+        if (_condition == null)
+        {
+            var elements = propertyValue.ToArray();
+            var result = CreateElementContext(context, elements);
 
+            return ValueTask.FromResult(result);
+        }
+
+        return CreateElementContextWithConditionCheck(context);
+    }
+
+    private IElementContext<TEntity, TProperty>? CreateElementContext(
+        IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context, IList<TProperty> elements)
+    {
         if (elements.Count == 0)
         {
             context.SetValidationMetadata(_metadataId, Constants.FalseObjectValue);
@@ -105,7 +108,7 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
-    private async ValueTask<IList<TProperty>> FilterElements(
+    private async ValueTask<IElementContext<TEntity, TProperty>?> CreateElementContextWithConditionCheck(
         IPropertyValidationContext<TEntity, IEnumerable<TProperty>?> context)
     {
         var elements = new List<TProperty>();
@@ -118,6 +121,6 @@ internal sealed class CollectionRuleChain<TEntity, TProperty>
             }
         }
 
-        return elements;
+        return CreateElementContext(context, elements);
     }
 }
