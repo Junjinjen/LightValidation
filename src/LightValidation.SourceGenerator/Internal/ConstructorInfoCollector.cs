@@ -15,7 +15,7 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
     private const string RefModifierSource = "ref ";
     private const string OutModifierSource = "out ";
     private const string InModifierSource = "in ";
-    private const string ParametersSeparator = ", ";
+    private const string ArgumentsSeparator = ", ";
     private const char LeftBracket = '(';
     private const char RightBracket = ')';
 
@@ -23,7 +23,7 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
         globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
         typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
         genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
-        memberOptions: SymbolDisplayMemberOptions.IncludeParameters,
+        memberOptions: SymbolDisplayMemberOptions.IncludeParameters | SymbolDisplayMemberOptions.IncludeContainingType,
         parameterOptions: SymbolDisplayParameterOptions.IncludeModifiers |
             SymbolDisplayParameterOptions.IncludeType |
             SymbolDisplayParameterOptions.IncludeName |
@@ -49,16 +49,16 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
     {
         if (symbol.Parameters.Length == 0)
         {
-            return new ConstructorInfo(methodParametersSource: string.Empty, invocationParametersSource: string.Empty);
+            return new ConstructorInfo(parametersSource: string.Empty, argumentsSource: string.Empty);
         }
 
-        var methodParametersSource = GetMethodParametersSource(symbol);
-        var invocationParametersSource = GetInvocationParametersSource(symbol);
+        var parametersSource = GetParametersSource(symbol);
+        var argumentsSource = GetArgumentsSource(symbol);
 
-        return new ConstructorInfo(methodParametersSource, invocationParametersSource);
+        return new ConstructorInfo(parametersSource, argumentsSource);
     }
 
-    private static string GetMethodParametersSource(IMethodSymbol symbol)
+    private static string GetParametersSource(IMethodSymbol symbol)
     {
         var withMethodParameters = symbol.ToDisplayString(MethodParametersFormat);
 
@@ -68,7 +68,7 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
         return withMethodParameters.Substring(startIndex, endIndex - startIndex);
     }
 
-    private static string GetInvocationParametersSource(IMethodSymbol symbol)
+    private static string GetArgumentsSource(IMethodSymbol symbol)
     {
         var builder = new StringBuilder();
 
@@ -83,7 +83,7 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
 
             if (i < parametersCount - 1)
             {
-                builder.Append(ParametersSeparator);
+                builder.Append(ArgumentsSeparator);
             }
         }
 

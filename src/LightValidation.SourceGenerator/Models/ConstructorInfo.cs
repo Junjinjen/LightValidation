@@ -4,15 +4,15 @@ namespace LightValidation.SourceGenerator.Models;
 
 internal readonly struct ConstructorInfo : IEquatable<ConstructorInfo>
 {
-    public ConstructorInfo(string methodParametersSource, string invocationParametersSource)
+    public ConstructorInfo(string parametersSource, string argumentsSource)
     {
-        MethodParametersSource = methodParametersSource;
-        InvocationParametersSource = invocationParametersSource;
+        ParametersSource = parametersSource;
+        ArgumentsSource = argumentsSource;
     }
 
-    public readonly string MethodParametersSource;
+    public readonly string ParametersSource;
 
-    public readonly string InvocationParametersSource;
+    public readonly string ArgumentsSource;
 
     public override bool Equals(object? obj)
     {
@@ -21,15 +21,15 @@ internal readonly struct ConstructorInfo : IEquatable<ConstructorInfo>
 
     public bool Equals(ConstructorInfo other)
     {
-        return MethodParametersSource == other.MethodParametersSource &&
-               InvocationParametersSource == other.InvocationParametersSource;
+        return ParametersSource == other.ParametersSource &&
+               ArgumentsSource == other.ArgumentsSource;
     }
 
     public override int GetHashCode()
     {
         var hashCode = 1544803191;
-        hashCode = (hashCode * -1521134295) + MethodParametersSource.GetHashCode();
-        hashCode = (hashCode * -1521134295) + InvocationParametersSource.GetHashCode();
+        hashCode = (hashCode * -1521134295) + ParametersSource.GetHashCode();
+        hashCode = (hashCode * -1521134295) + ArgumentsSource.GetHashCode();
 
         return hashCode;
     }

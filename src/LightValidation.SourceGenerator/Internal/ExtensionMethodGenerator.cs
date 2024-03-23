@@ -98,7 +98,7 @@ namespace {0};
     private static string GenerateExtensionMethod(in MethodInfo methodInfo, in ConstructorInfo constructorInfo)
     {
         var outputPropertyTypeSource = GetOutputPropertyTypeSource(methodInfo.InterfaceInfo);
-        var methodParameters = constructorInfo.MethodParametersSource.FormatIfNotEmpty(MethodParametersFormat);
+        var methodParameters = constructorInfo.ParametersSource.FormatIfNotEmpty(MethodParametersFormat);
         var constraints = methodInfo.ClassInfo.ConstraintsSource.FormatIfNotEmpty(ConstraintsFormat);
 
         return string.Format(
@@ -113,7 +113,7 @@ namespace {0};
             methodParameters,                             // 6
             constraints,                                  // 7
             methodInfo.InterfaceInfo.RuleChainMethod,     // 8
-            constructorInfo.InvocationParametersSource);  // 9
+            constructorInfo.ArgumentsSource);  // 9
     }
 
     private static string GetOutputPropertyTypeSource(in InterfaceInfo info)
