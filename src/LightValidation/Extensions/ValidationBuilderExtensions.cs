@@ -178,4 +178,14 @@ public static class ValidationBuilderExtensions
 
         validationBuilder.AddScope(conditionalScopeBuilder, standaloneMode: false, buildAction);
     }
+
+    public static void RuleSet<TEntity>(
+        this IValidationBuilder<TEntity> validationBuilder, string ruleSet, Action buildAction)
+    {
+        ArgumentNullException.ThrowIfNull(validationBuilder);
+        ArgumentException.ThrowIfNullOrEmpty(ruleSet);
+        ArgumentNullException.ThrowIfNull(buildAction);
+
+        validationBuilder.When(context => context.RuleSets.Contains(ruleSet), buildAction);
+    }
 }
