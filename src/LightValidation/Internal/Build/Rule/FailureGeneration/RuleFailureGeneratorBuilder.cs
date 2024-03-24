@@ -186,9 +186,9 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         [CallerArgumentExpression(nameof(value))] string? paramName = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(value, paramName);
-        if (value == MetadataKey.PropertyName ||
-            value == MetadataKey.CollectionIndex ||
-            (!allowPropertyValueName && value == MetadataKey.PropertyValue))
+        if (value == MetadataKey.PropertyName
+            || value == MetadataKey.CollectionIndex
+            || (!allowPropertyValueName && value == MetadataKey.PropertyValue))
         {
             throw new ArgumentException(
                 $"Unable to use the reserved metadata key \"{value}\".", paramName);
@@ -248,10 +248,10 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
     private IErrorDescriptionGenerator<TProperty> CreateDescriptionGenerator(
         string propertyName, string errorDescription, bool insertCollectionIndex)
     {
-        if (_runtimeMetadata.Count != 0 ||
-            insertCollectionIndex ||
-            HasPropertyValueFormatting(errorDescription) ||
-            HasStaticMetadataForLocalization(errorDescription))
+        if (_runtimeMetadata.Count != 0
+            || insertCollectionIndex
+            || HasPropertyValueFormatting(errorDescription)
+            || HasStaticMetadataForLocalization(errorDescription))
         {
             var runtimeMetadataKeys = GetRuntimeMetadataKeys(insertCollectionIndex);
 

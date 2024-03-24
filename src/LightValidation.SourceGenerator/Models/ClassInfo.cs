@@ -24,9 +24,9 @@ internal readonly struct ClassInfo : IEquatable<ClassInfo>
 
     public bool Equals(ClassInfo other)
     {
-        return GenericParametersSource == other.GenericParametersSource &&
-               ConstraintsSource == other.ConstraintsSource &&
-               FullName == other.FullName;
+        return GenericParametersSource == other.GenericParametersSource
+               && ConstraintsSource == other.ConstraintsSource
+               && FullName == other.FullName;
     }
 
     public override int GetHashCode()

@@ -21,8 +21,8 @@ internal readonly struct ConstructorInfo : IEquatable<ConstructorInfo>
 
     public bool Equals(ConstructorInfo other)
     {
-        return ParametersSource == other.ParametersSource &&
-               ArgumentsSource == other.ArgumentsSource;
+        return ParametersSource == other.ParametersSource
+               && ArgumentsSource == other.ArgumentsSource;
     }
 
     public override int GetHashCode()

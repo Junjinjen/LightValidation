@@ -31,10 +31,10 @@ internal readonly struct InterfaceInfo : IEquatable<InterfaceInfo>
 
     public bool Equals(InterfaceInfo other)
     {
-        return HasNullablePropertyTypeModifier == other.HasNullablePropertyTypeModifier &&
-               RuleChainMethod == other.RuleChainMethod &&
-               EntityTypeSource == other.EntityTypeSource &&
-               PropertyTypeSource == other.PropertyTypeSource;
+        return HasNullablePropertyTypeModifier == other.HasNullablePropertyTypeModifier
+               && RuleChainMethod == other.RuleChainMethod
+               && EntityTypeSource == other.EntityTypeSource
+               && PropertyTypeSource == other.PropertyTypeSource;
     }
 
     public override int GetHashCode()

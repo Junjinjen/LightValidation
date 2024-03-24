@@ -31,10 +31,10 @@ internal readonly struct MethodInfo : IEquatable<MethodInfo>
 
     public bool Equals(MethodInfo other)
     {
-        return AttributeInfo.Equals(other.AttributeInfo) &&
-               InterfaceInfo.Equals(other.InterfaceInfo) &&
-               ClassInfo.Equals(other.ClassInfo) &&
-               ConstructorInfos.AsSpan().SequenceEqual(other.ConstructorInfos.AsSpan());
+        return AttributeInfo.Equals(other.AttributeInfo)
+               && InterfaceInfo.Equals(other.InterfaceInfo)
+               && ClassInfo.Equals(other.ClassInfo)
+               && ConstructorInfos.AsSpan().SequenceEqual(other.ConstructorInfos.AsSpan());
     }
 
     public override int GetHashCode()

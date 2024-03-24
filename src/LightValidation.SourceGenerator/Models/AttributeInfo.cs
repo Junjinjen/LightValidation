@@ -24,9 +24,9 @@ internal readonly struct AttributeInfo : IEquatable<AttributeInfo>
 
     public bool Equals(AttributeInfo other)
     {
-        return AccessModifier == other.AccessModifier &&
-               MethodName == other.MethodName &&
-               Namespace == other.Namespace;
+        return AccessModifier == other.AccessModifier
+               && MethodName == other.MethodName
+               && Namespace == other.Namespace;
     }
 
     public override int GetHashCode()
