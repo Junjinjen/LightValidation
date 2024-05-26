@@ -1,6 +1,7 @@
 ﻿using LightValidation.Abstractions.Execute;
 using LightValidation.Result;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -29,6 +30,10 @@ internal sealed class ValidationExecutor<TEntity> : IValidationExecutor<TEntity>
 
     public ExecutionModeCollection ExecutionModes { get; }
 
+    [SuppressMessage(
+        "Minor Bug", "S2955:Generic parameters not constrained to reference types should not be compared to \"null\"",
+        Justification = "We only care about null values of reference types, " +
+            "because we can access properties of any struct without error")]
     public ValueTask Validate(IEntityValidationContext<TEntity> context, ExecutionMode currentMode)
     {
         Debug.Assert(ExecutionModes.Contains(currentMode),

@@ -9,15 +9,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{48ACD1FA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightValidation", "src\LightValidation\LightValidation.csproj", "{04C30249-AC37-45A1-9919-83F7A267CC08}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightValidation.EntityFramework", "src\LightValidation.EntityFramework\LightValidation.EntityFramework.csproj", "{81FB0F12-B152-4E54-83F1-2B52E37F037A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightValidation.Microsoft.DependencyInjection", "src\LightValidation.Microsoft.DependencyInjection\LightValidation.Microsoft.DependencyInjection.csproj", "{14046DA8-1033-4E01-94B4-9C8A11FB1DB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightValidation.UnitTests", "tests\LightValidation.UnitTests\LightValidation.UnitTests.csproj", "{DD0BAD36-06B5-41F4-A624-11DE366A92C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightValidation.EntityFramework.UnitTests", "tests\LightValidation.EntityFramework.UnitTests\LightValidation.EntityFramework.UnitTests.csproj", "{17CAC542-37D3-493D-9559-344718264C05}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightValidation.SourceGenerator", "src\LightValidation.SourceGenerator\LightValidation.SourceGenerator.csproj", "{EFC13026-ABA9-4B35-9CB3-115406855F65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightValidation.SourceGenerator", "src\LightValidation.SourceGenerator\LightValidation.SourceGenerator.csproj", "{EFC13026-ABA9-4B35-9CB3-115406855F65}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +25,6 @@ Global
 		{04C30249-AC37-45A1-9919-83F7A267CC08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04C30249-AC37-45A1-9919-83F7A267CC08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04C30249-AC37-45A1-9919-83F7A267CC08}.Release|Any CPU.Build.0 = Release|Any CPU
-		{81FB0F12-B152-4E54-83F1-2B52E37F037A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{81FB0F12-B152-4E54-83F1-2B52E37F037A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{81FB0F12-B152-4E54-83F1-2B52E37F037A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{81FB0F12-B152-4E54-83F1-2B52E37F037A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{14046DA8-1033-4E01-94B4-9C8A11FB1DB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{14046DA8-1033-4E01-94B4-9C8A11FB1DB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14046DA8-1033-4E01-94B4-9C8A11FB1DB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,10 +33,6 @@ Global
 		{DD0BAD36-06B5-41F4-A624-11DE366A92C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD0BAD36-06B5-41F4-A624-11DE366A92C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD0BAD36-06B5-41F4-A624-11DE366A92C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{17CAC542-37D3-493D-9559-344718264C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{17CAC542-37D3-493D-9559-344718264C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{17CAC542-37D3-493D-9559-344718264C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{17CAC542-37D3-493D-9559-344718264C05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EFC13026-ABA9-4B35-9CB3-115406855F65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EFC13026-ABA9-4B35-9CB3-115406855F65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EFC13026-ABA9-4B35-9CB3-115406855F65}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -55,10 +43,8 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{04C30249-AC37-45A1-9919-83F7A267CC08} = {51FA0AC7-1E1C-4F2A-93F5-D4A02B00EFCA}
-		{81FB0F12-B152-4E54-83F1-2B52E37F037A} = {51FA0AC7-1E1C-4F2A-93F5-D4A02B00EFCA}
 		{14046DA8-1033-4E01-94B4-9C8A11FB1DB2} = {51FA0AC7-1E1C-4F2A-93F5-D4A02B00EFCA}
 		{DD0BAD36-06B5-41F4-A624-11DE366A92C3} = {48ACD1FA-4BB5-4401-A2E9-C19774543251}
-		{17CAC542-37D3-493D-9559-344718264C05} = {48ACD1FA-4BB5-4401-A2E9-C19774543251}
 		{EFC13026-ABA9-4B35-9CB3-115406855F65} = {51FA0AC7-1E1C-4F2A-93F5-D4A02B00EFCA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

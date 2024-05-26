@@ -1,5 +1,6 @@
 ﻿using LightValidation.Abstractions;
 using LightValidation.Abstractions.Build;
+using LightValidation.Abstractions.Execute;
 using LightValidation.Internal;
 using LightValidation.Internal.Execute.Validation;
 using LightValidation.Result;
@@ -91,6 +92,7 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
         var validationBuilderFactory = DependencyResolver.ValidationBuilderFactory;
         var validationBuilder = validationBuilderFactory.Create<TEntity>();
 
+        SetExecutionModeForComplexRule(validationBuilder);
         OnValidationBuild(validationBuilder);
         BuildValidation(validationBuilder);
 
@@ -107,6 +109,11 @@ public abstract class ValidatorBase<TEntity> : IValidatorInternal<TEntity>
 
     protected virtual void OnValidationBuild(IValidationBuilder<TEntity> builder)
     {
+    }
+
+    private static void SetExecutionModeForComplexRule(IValidationBuilder<TEntity> builder)
+    {
+        builder.SetExecutionModeForAttribute(typeof(ComplexRuleAttribute), ExecutionMode.OnValidEntity);
     }
 
     private ValidationContext<TEntity> CreateValidationContext(
