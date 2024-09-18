@@ -18,5 +18,5 @@ internal readonly ref struct PropertyContextParameters
 
     public required IReadOnlyDictionary<Type, ExecutionMode> ExecutionModeByAttribute { get; init; }
 
-    public required IEntityBuildContext EntityBuildContext { get; init; }
+    public required IEntityBuildContext EntityContext { get; init; }
 }

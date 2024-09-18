@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace LightValidation.Internal.Build.Nested;
 
 internal interface INestedValidationBuilder<TEntity, TProperty>
-    : IValidatorConfiguration<TEntity, TProperty>, IPropertyValidatorBuilder<TEntity, TProperty>
+    : INestedValidatorConfiguration<TEntity, TProperty>, IPropertyValidatorBuilder<TEntity, TProperty>
 {
 }
 
@@ -69,7 +69,7 @@ internal sealed class NestedValidationBuilder<TEntity, TProperty>
 
         var condition = _propertyConditionBuilder.Build();
         var propertyName = _propertyName ?? context.PropertyName;
-        var metadataId = context.RegisterMetadata();
+        var metadataId = context.RegisterValidationMetadata();
 
         var parameters = new NestedValidationExecutorParameters<TEntity, TProperty>
         {

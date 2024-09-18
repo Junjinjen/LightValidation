@@ -1,6 +1,6 @@
 ﻿namespace LightValidation.Abstractions.Execute;
 
-public interface IMetadataProvider
+public interface IErrorMetadataProvider
 {
     void SetValue(object? value);
 }

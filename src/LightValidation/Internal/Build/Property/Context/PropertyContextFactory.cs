@@ -17,6 +17,6 @@ internal sealed class PropertyContextFactory : IPropertyContextFactory
             parameters.PropertySelector,
             parameters.PropertyName,
             parameters.ExecutionModeByAttribute,
-            parameters.EntityBuildContext);
+            parameters.EntityContext);
     }
 }

@@ -28,8 +28,8 @@ internal sealed class RuleValidationBuilderFactory : IRuleValidationBuilderFacto
             DependencyResolver.RuntimeMetadataGeneratorFactory,
             DependencyResolver.StaticMetadataGeneratorFactory,
             DependencyResolver.RuleFailureGeneratorFactory,
-            defaultRuleConfiguration,
-            DependencyResolver.MetadataProviderFactory);
+            DependencyResolver.ErrorMetadataProviderFactory,
+            defaultRuleConfiguration);
 
         var propertyConditionBuilder = new PropertyConditionBuilder<TEntity, TProperty>();
         var executionModeProvider = new ExecutionModeProvider();

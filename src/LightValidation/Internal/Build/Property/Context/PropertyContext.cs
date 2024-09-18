@@ -9,7 +9,7 @@ namespace LightValidation.Internal.Build.Property.Context;
 internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
 {
     private readonly IReadOnlyDictionary<Type, ExecutionMode> _executionModeByAttribute;
-    private readonly IEntityBuildContext _entityBuildContext;
+    private readonly IEntityBuildContext _entityContext;
 
     private readonly LambdaExpression _propertySelectorExpression;
     private readonly ExecutionMode _defaultExecutionMode;
@@ -22,7 +22,7 @@ internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
         Delegate propertySelector,
         string propertyName,
         IReadOnlyDictionary<Type, ExecutionMode> executionModeByAttribute,
-        IEntityBuildContext entityBuildContext)
+        IEntityBuildContext entityContext)
     {
         _propertySelectorExpression = propertySelectorExpression;
         _defaultExecutionMode = defaultExecutionMode;
@@ -30,12 +30,12 @@ internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
         _propertyName = propertyName;
 
         _executionModeByAttribute = executionModeByAttribute;
-        _entityBuildContext = entityBuildContext;
+        _entityContext = entityContext;
     }
 
-    public IEntityBuildContext EntityBuildContext => ReturnWithBuildCheck(_entityBuildContext);
+    public IEntityBuildContext EntityContext => ReturnWithBuildCheck(_entityContext);
 
-    public Type ValidatorType => ReturnWithBuildCheck(EntityBuildContext.ValidatorType);
+    public Type ValidatorType => ReturnWithBuildCheck(_entityContext.ValidatorType);
 
     public IReadOnlyDictionary<Type, ExecutionMode> ExecutionModeByAttribute =>
         ReturnWithBuildCheck(_executionModeByAttribute);
@@ -48,12 +48,12 @@ internal sealed class PropertyContext : BuildContextBase, IPropertyBuildContext
 
     public string PropertyName => ReturnWithBuildCheck(_propertyName);
 
-    protected override bool IsBuilt => _entityBuildContext.IsValidationBuilt;
+    protected override bool IsBuilt => _entityContext.IsValidationBuilt;
 
-    public int RegisterMetadata()
+    public int RegisterValidationMetadata()
     {
         EnsureNotBuilt();
 
-        return EntityBuildContext.RegisterMetadata();
+        return EntityContext.RegisterValidationMetadata();
     }
 }

@@ -14,6 +14,6 @@ public class ValidationResult
 
     public override string ToString()
     {
-        return IsValid ? "Valid result" : $"Invalid result [Broken rules count: {BrokenRules.Count}]";
+        return IsValid ? "Valid result" : $"Invalid result [Broken rule count: {BrokenRules.Count}]";
     }
 }

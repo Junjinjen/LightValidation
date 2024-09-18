@@ -79,11 +79,11 @@ internal sealed class RuleValidationBuilder<TEntity, TProperty, TRule>
         _ruleFailureGeneratorBuilder.SetPropertyName(propertyName);
     }
 
-    public void ApplyIndexOnPropertyName(bool value)
+    public void AppendCollectionIndexToPropertyName(bool value)
     {
         EnsureValidState();
 
-        _ruleFailureGeneratorBuilder.ApplyIndexOnPropertyName(value, isDefaultMode: false);
+        _ruleFailureGeneratorBuilder.AppendCollectionIndexToPropertyName(value, isDefaultMode: false);
     }
 
     public void SetErrorCode(string errorCode)
@@ -114,11 +114,11 @@ internal sealed class RuleValidationBuilder<TEntity, TProperty, TRule>
         _ruleFailureGeneratorBuilder.AddErrorMetadata(key, valueSelector);
     }
 
-    public void SetMetadataLocalization(string key, Func<object?, string> localizer)
+    public void SetErrorMetadataLocalization(string key, Func<object?, string> localizer)
     {
         EnsureValidState();
 
-        _ruleFailureGeneratorBuilder.SetMetadataLocalization(key, localizer);
+        _ruleFailureGeneratorBuilder.SetErrorMetadataLocalization(key, localizer);
     }
 
     public void AddDependentRules(Action buildAction)
@@ -149,7 +149,7 @@ internal sealed class RuleValidationBuilder<TEntity, TProperty, TRule>
 
         var condition = _propertyConditionBuilder.Build();
         var failureGenerator = _ruleFailureGeneratorBuilder.Build(context.PropertyName, ruleType);
-        var dependentScope = _dependentScopeBuilder?.Build(context.EntityBuildContext);
+        var dependentScope = _dependentScopeBuilder?.Build(context.EntityContext);
 
         var parameters = new RuleValidationExecutorParameters<TEntity, TProperty>
         {

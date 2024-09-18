@@ -18,8 +18,8 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(assembly);
 
-        var infos = AssemblyScanner.FindValidators(assembly);
-        var options = new RegistrationOptions(infos)
+        var validators = AssemblyScanner.FindValidators(assembly);
+        var options = new RegistrationOptions(validators)
         {
             Services = services,
         };
@@ -61,8 +61,8 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(assemblies);
 
-        var infos = AssemblyScanner.FindValidators(assemblies);
-        var options = new RegistrationOptions(infos)
+        var validators = AssemblyScanner.FindValidators(assemblies);
+        var options = new RegistrationOptions(validators)
         {
             Services = services,
         };

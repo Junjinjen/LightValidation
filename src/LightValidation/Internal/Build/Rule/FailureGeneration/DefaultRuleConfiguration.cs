@@ -30,7 +30,7 @@ internal sealed class DefaultRuleConfiguration : IDefaultRuleConfiguration
         ruleName = GetNameWithoutPostfix(ruleName, RuleBuilderPostfix);
         ruleName = GetNameWithoutPostfix(ruleName, RulePostfix);
 
-        return $"\"{{{MetadataKey.PropertyName}}}\" violated the \"{ruleName}\" rule";
+        return $"\"{{{ErrorMetadataKey.PropertyName}}}\" violated the \"{ruleName}\" rule";
     }
 
     private static string GetNameWithoutPostfix(string ruleName, string postfix)

@@ -150,7 +150,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
             return ValueTask.CompletedTask;
         }
 
-        return _dependentScope!.Validate(context.EntityValidationContext, currentMode);
+        return _dependentScope!.Validate(context.EntityContext, currentMode);
     }
 
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder))]
@@ -164,7 +164,7 @@ internal sealed class RuleValidationExecutor<TEntity, TProperty> : IPropertyVali
                 return;
             }
 
-            await _dependentScope!.Validate(context.EntityValidationContext, mode).ConfigureAwait(false);
+            await _dependentScope!.Validate(context.EntityContext, mode).ConfigureAwait(false);
         }
     }
 }

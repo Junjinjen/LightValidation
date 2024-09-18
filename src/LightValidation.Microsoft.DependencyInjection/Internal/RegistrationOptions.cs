@@ -10,9 +10,9 @@ internal sealed class RegistrationOptions : IRegistrationOptions
 {
     private readonly ValidatorDescriptor[] _validatorDescriptors;
 
-    public RegistrationOptions(IEnumerable<ValidatorInfo> validatorInfos)
+    public RegistrationOptions(IEnumerable<ValidatorInfo> validators)
     {
-        _validatorDescriptors = validatorInfos.Select(x => new ValidatorDescriptor(x)).ToArray();
+        _validatorDescriptors = validators.Select(x => new ValidatorDescriptor(x)).ToArray();
     }
 
     public required IServiceCollection Services { get; init; }
@@ -20,7 +20,7 @@ internal sealed class RegistrationOptions : IRegistrationOptions
     public IRegistrationOptions AddModifier(
         Func<ValidatorInfo, bool> filter, Action<IServiceProvider, object> modifier)
     {
-        foreach (var descriptor in _validatorDescriptors.Where(x => filter.Invoke(x.ValidatorInfo)))
+        foreach (var descriptor in _validatorDescriptors.Where(x => filter.Invoke(x.Validator)))
         {
             descriptor.AddModifier(modifier);
         }

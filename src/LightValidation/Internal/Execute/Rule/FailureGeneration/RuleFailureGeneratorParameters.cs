@@ -5,7 +5,7 @@ namespace LightValidation.Internal.Execute.Rule.FailureGeneration;
 
 internal readonly ref struct RuleFailureGeneratorParameters<TEntity, TProperty>
 {
-    public required bool ApplyIndexOnPropertyName { get; init; }
+    public required bool AppendCollectionIndexToPropertyName { get; init; }
 
     public required string PropertyName { get; init; }
 

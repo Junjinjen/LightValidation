@@ -44,7 +44,7 @@ internal sealed class PropertyContextCache<TEntity> : IPropertyContextCache<TEnt
                 PropertySelector = propertySelector,
                 PropertyName = propertyName,
                 ExecutionModeByAttribute = context.ExecutionModeByAttribute,
-                EntityBuildContext = context,
+                EntityContext = context,
             };
 
             value = _propertyContextFactory.Create(parameters);

@@ -6,7 +6,7 @@ namespace LightValidation.Abstractions.Execute;
 
 public interface IPropertyValidationContext<TEntity, out TProperty>
 {
-    IEntityValidationContext<TEntity> EntityValidationContext { get; }
+    IEntityValidationContext<TEntity> EntityContext { get; }
 
     ValidationContext<TEntity> ValidationContext { get; }
 

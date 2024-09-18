@@ -10,9 +10,9 @@ using System.Globalization;
 namespace LightValidation.Internal.Build.Chain;
 
 internal interface ICollectionRuleChainBuilder<TEntity, TProperty>
-    : IRuleChainBuilderInitial<TEntity, TProperty>,
-    IPropertyValidatorBuilder<TEntity, IEnumerable<TProperty>?>,
-    ICollectionConfiguration<TEntity, TProperty>
+    : ICollectionRuleChainConfiguration<TEntity, TProperty>,
+    IRuleChainConfiguration<TEntity, TProperty>,
+    IPropertyValidatorBuilder<TEntity, IEnumerable<TProperty>?>
 {
 }
 
@@ -64,7 +64,7 @@ internal sealed class CollectionRuleChainBuilder<TEntity, TProperty>
         }
 
         var condition = BuildCondition();
-        var metadataId = context.RegisterMetadata();
+        var metadataId = context.RegisterValidationMetadata();
 
         var parameters = new CollectionRuleChainParameters<TEntity, TProperty>
         {

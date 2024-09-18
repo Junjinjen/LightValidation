@@ -51,8 +51,8 @@ internal static class DependencyResolver
     public static IDefaultRuleBuilderFactory DefaultRuleBuilderFactory { get; set; }
         = new DefaultRuleBuilderFactory();
 
-    public static IMetadataProviderFactory MetadataProviderFactory { get; set; }
-        = new MetadataProviderFactory();
+    public static IErrorMetadataProviderFactory ErrorMetadataProviderFactory { get; set; }
+        = new ErrorMetadataProviderFactory();
 
     public static IRuleValidationBuilderFactory RuleValidationBuilderFactory { get; set; }
         = new RuleValidationBuilderFactory();

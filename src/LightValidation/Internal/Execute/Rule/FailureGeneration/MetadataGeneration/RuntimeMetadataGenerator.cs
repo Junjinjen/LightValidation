@@ -47,7 +47,7 @@ internal sealed class RuntimeMetadataGenerator<TEntity, TProperty> : IErrorMetad
 
         if (_insertCollectionIndex)
         {
-            metadata.Add(MetadataKey.CollectionIndex, collectionIndex);
+            metadata.Add(ErrorMetadataKey.CollectionIndex, collectionIndex);
         }
 
         return metadata;

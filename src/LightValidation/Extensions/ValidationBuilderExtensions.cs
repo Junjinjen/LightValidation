@@ -101,7 +101,7 @@ public static class ValidationBuilderExtensions
         return validationBuilder;
     }
 
-    public static IRuleChainBuilderInitial<TEntity, TProperty> Property<TEntity, TProperty>(
+    public static IRuleChainConfiguration<TEntity, TProperty> Property<TEntity, TProperty>(
         this IValidationBuilder<TEntity> validationBuilder,
         Expression<Func<TEntity, TProperty>> propertySelectorExpression)
     {

@@ -14,29 +14,29 @@ internal interface ICollectionMetadata
 internal sealed class CollectionMetadata : ICollectionMetadata, IDisposable
 {
     private readonly object?[] _metadata;
-    private readonly int _elementsCount;
+    private readonly int _elementCount;
 
-    public CollectionMetadata(int elementsCount)
+    public CollectionMetadata(int elementCount)
     {
-        Debug.Assert(elementsCount > 0, "Elements count must be greater than zero.");
+        Debug.Assert(elementCount > 0, "Elements count must be greater than zero.");
 
-        _metadata = ArrayPool<object?>.Shared.Rent(elementsCount);
+        _metadata = ArrayPool<object?>.Shared.Rent(elementCount);
 
         Debug.Assert(!Array.Exists(_metadata, x => x != null), "Rented metadata contains non-null objects.");
 
-        _elementsCount = elementsCount;
+        _elementCount = elementCount;
     }
 
     public object? GetElementMetadata(int elementIndex)
     {
-        Debug.Assert(elementIndex < _elementsCount, "Index was outside the bounds of the metadata array.");
+        Debug.Assert(elementIndex < _elementCount, "Index was outside the bounds of the metadata array.");
 
         return _metadata[elementIndex];
     }
 
     public void SetElementMetadata(int elementIndex, object? value)
     {
-        Debug.Assert(elementIndex < _elementsCount, "Index was outside the bounds of the metadata array.");
+        Debug.Assert(elementIndex < _elementCount, "Index was outside the bounds of the metadata array.");
 
         _metadata[elementIndex] = value;
     }
@@ -51,7 +51,7 @@ internal sealed class CollectionMetadata : ICollectionMetadata, IDisposable
             }
         }
 
-        Array.Clear(_metadata, 0, _elementsCount);
+        Array.Clear(_metadata, 0, _elementCount);
         ArrayPool<object?>.Shared.Return(_metadata);
     }
 }

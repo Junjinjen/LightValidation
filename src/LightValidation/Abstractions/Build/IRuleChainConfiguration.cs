@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace LightValidation.Abstractions.Build;
 
-public interface IRuleChainBuilderInitial<TEntity, out TProperty> : IRuleChainBuilder<TEntity, TProperty>
+public interface IRuleChainConfiguration<TEntity, out TProperty> : IRuleChainBuilder<TEntity, TProperty>
 {
     void AddCondition(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition);
 

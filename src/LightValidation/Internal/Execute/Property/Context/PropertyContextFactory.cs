@@ -15,7 +15,7 @@ internal sealed class PropertyContextFactory : IPropertyContextFactory
     {
         return new PropertyContext<TEntity, TProperty>
         {
-            EntityValidationContext = context,
+            EntityContext = context,
             PropertyValue = propertyValue,
         };
     }

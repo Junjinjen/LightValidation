@@ -42,7 +42,7 @@ internal sealed class ConditionalScopeBuilder<TEntity> : BuilderBase, IScopeBuil
             return null;
         }
 
-        var metadataId = context.RegisterMetadata();
+        var metadataId = context.RegisterValidationMetadata();
 
         return _conditionalScopeFactory.Create(_condition, entityValidators, metadataId);
     }

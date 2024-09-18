@@ -9,7 +9,7 @@ internal sealed class StaticDescriptionGenerator<TProperty> : IErrorDescriptionG
     public StaticDescriptionGenerator(
         string propertyName, string description, Dictionary<string, object?> staticMetadata)
     {
-        _description = description.Format(MetadataKey.PropertyName, propertyName);
+        _description = description.Format(ErrorMetadataKey.PropertyName, propertyName);
         foreach (var metadata in staticMetadata)
         {
             _description = _description.Format(metadata.Key, metadata.Value);

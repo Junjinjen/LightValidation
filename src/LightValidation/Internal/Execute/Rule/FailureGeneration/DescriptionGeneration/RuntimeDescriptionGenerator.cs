@@ -10,12 +10,12 @@ namespace LightValidation.Internal.Execute.Rule.FailureGeneration.DescriptionGen
 
 internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescriptionGenerator<TProperty>
 {
-    private const int EscapedBracesCount = 2;
-    private const int KeyBracesCount = 2;
+    private const int EscapedBraceCount = 2;
+    private const int KeyBraceCount = 2;
     private const char LeftBrace = '{';
     private const char RightBrace = '}';
 
-    private readonly KeyValuePair<string, Func<object?, string>?>[] _metadataFormatters;
+    private readonly KeyValuePair<string, Func<object?, string>?>[] _metadataLocalizers;
     private readonly CompositeFormat _compositeFormat;
 
     public RuntimeDescriptionGenerator(in RuntimeDescriptionGeneratorParameters parameters)
@@ -27,23 +27,23 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
             parameters.MetadataLocalizers);
 
         var allKeys = parameters.StaticMetadata.Keys
-            .Concat(parameters.RuntimeMetadataKeys).Concat([MetadataKey.PropertyValue]);
+            .Concat(parameters.RuntimeMetadataKeys).Concat([ErrorMetadataKey.PropertyValue]);
 
         var localizers = parameters.MetadataLocalizers;
-        _metadataFormatters = allKeys
+        _metadataLocalizers = allKeys
             .Select(x => new { Index = description.GetMetadataKeyIndex(x), Key = x })
             .Where(x => x.Index >= 0)
             .OrderBy(x => x.Index)
             .Select(x => KeyValuePair.Create(x.Key, localizers.GetValueOrDefault(x.Key)))
             .ToArray();
 
-        Debug.Assert(_metadataFormatters.Length != 0, "Runtime description generator must have dynamic formatting.");
+        Debug.Assert(_metadataLocalizers.Length != 0, "Runtime description generator must have dynamic formatting.");
 
         description = EscapeDescription(description);
 
-        for (var i = 0; i < _metadataFormatters.Length; i++)
+        for (var i = 0; i < _metadataLocalizers.Length; i++)
         {
-            var key = _metadataFormatters[i].Key;
+            var key = _metadataLocalizers[i].Key;
             description = description.Format(key, $"{{{i}}}");
         }
 
@@ -52,16 +52,16 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
 
     public string Generate(TProperty propertyValue, IReadOnlyDictionary<string, object?> errorMetadata)
     {
-        var formattersCount = _metadataFormatters.Length;
-        var arguments = ArrayPool<object?>.Shared.Rent(formattersCount);
+        var localizerCount = _metadataLocalizers.Length;
+        var arguments = ArrayPool<object?>.Shared.Rent(localizerCount);
 
         try
         {
-            for (var i = 0; i < formattersCount; i++)
+            for (var i = 0; i < localizerCount; i++)
             {
-                var key = _metadataFormatters[i].Key;
-                var localizer = _metadataFormatters[i].Value;
-                var metadata = key != MetadataKey.PropertyValue ? errorMetadata[key] : propertyValue;
+                var key = _metadataLocalizers[i].Key;
+                var localizer = _metadataLocalizers[i].Value;
+                var metadata = key != ErrorMetadataKey.PropertyValue ? errorMetadata[key] : propertyValue;
 
                 arguments[i] = localizer == null ? metadata : localizer.Invoke(metadata);
             }
@@ -70,7 +70,7 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
         }
         finally
         {
-            Array.Clear(arguments, 0, formattersCount);
+            Array.Clear(arguments, 0, localizerCount);
             ArrayPool<object?>.Shared.Return(arguments);
         }
     }
@@ -81,7 +81,7 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
         Dictionary<string, object?> staticMetadata,
         Dictionary<string, Func<object?, string>> localizers)
     {
-        description = description.Format(MetadataKey.PropertyName, propertyName);
+        description = description.Format(ErrorMetadataKey.PropertyName, propertyName);
 
         var metadataWithoutLocalizers = staticMetadata.Where(x => !localizers.ContainsKey(x.Key));
         foreach (var metadata in metadataWithoutLocalizers)
@@ -96,8 +96,8 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
     {
         var builder = new StringBuilder(description.Length);
 
-        var keysMap = _metadataFormatters
-            .Select(x => KeyValuePair.Create(description.GetMetadataKeyIndex(x.Key), x.Key.Length + KeyBracesCount))
+        var keysMap = _metadataLocalizers
+            .Select(x => KeyValuePair.Create(description.GetMetadataKeyIndex(x.Key), x.Key.Length + KeyBraceCount))
             .Where(x => x.Key >= 0)
             .ToDictionary(x => x.Key, x => x.Value);
 
@@ -114,7 +114,7 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
                     continue;
                 }
 
-                builder.Append(LeftBrace, EscapedBracesCount);
+                builder.Append(LeftBrace, EscapedBraceCount);
                 index++;
 
                 continue;
@@ -122,7 +122,7 @@ internal sealed class RuntimeDescriptionGenerator<TProperty> : IErrorDescription
 
             if (description[index] == RightBrace)
             {
-                builder.Append(RightBrace, EscapedBracesCount);
+                builder.Append(RightBrace, EscapedBraceCount);
                 index++;
 
                 continue;

@@ -100,22 +100,26 @@ internal sealed class NestedValidationExecutor<TEntity, TProperty> : IPropertyVa
 
         var validationExecutor = _validationExecutorCache.Get(validator);
 
-        var validationContext = validator.CreateValidationContext(new ValidationContextParameters<TProperty>
+        var validationContextParameters = new ValidationContextParameters<TProperty>
         {
             Entity = context.PropertyValue,
             Cache = context.ValidationContext.Cache,
             RuleSets = context.ValidationContext.RuleSets,
             CancellationToken = context.ValidationContext.CancellationToken,
-        });
+        };
 
-        var nestedContext = _nestedContextFactory.Create(new NestedContextParameters<TEntity, TProperty>
+        var validationContext = validator.CreateValidationContext(validationContextParameters);
+
+        var nestedContextParameters = new NestedContextParameters<TEntity, TProperty>
         {
             MetadataCount = validationExecutor.MetadataCount,
             PropertyName = _propertyName,
             PropertyContext = context,
             ValidationContext = validationContext,
             ValidationExecutor = validationExecutor,
-        });
+        };
+
+        var nestedContext = _nestedContextFactory.Create(nestedContextParameters);
 
         context.SetValidationMetadata(_metadataId, nestedContext);
 

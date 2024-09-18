@@ -2,12 +2,12 @@
 
 namespace LightValidation.Internal.Build.Rule.FailureGeneration.MetadataProvision;
 
-internal interface IMetadataProviderInternal : IMetadataProvider
+internal interface IErrorMetadataProviderInternal : IErrorMetadataProvider
 {
     object? PopValue();
 }
 
-internal sealed class MetadataProvider : IMetadataProviderInternal
+internal sealed class ErrorMetadataProvider : IErrorMetadataProviderInternal
 {
     private object? _value;
 

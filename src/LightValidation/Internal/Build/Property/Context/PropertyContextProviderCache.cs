@@ -36,7 +36,7 @@ internal sealed class PropertyContextProviderCache<TEntity> : IPropertyContextPr
     {
         if (!_cache.TryGetValue(propertyPath, out var value))
         {
-            var metadataId = context.RegisterMetadata();
+            var metadataId = context.RegisterValidationMetadata();
             var propertySelector = _propertySelectorCache.Get(propertyPath, propertySelectorExpression);
             value = _propertyContextProviderFactory.Create(propertySelector, metadataId);
 

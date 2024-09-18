@@ -40,9 +40,9 @@ public static class RuleChainBuilderExtensions
         return ruleValidationBuilder;
     }
 
-    public static ICollectionConfiguration<TEntity, TProperty> ForEach<TEntity, TProperty>(
+    public static ICollectionRuleChainConfiguration<TEntity, TProperty> ForEach<TEntity, TProperty>(
         this IRuleChainBuilder<TEntity, IEnumerable<TProperty>?> ruleChainBuilder,
-        Action<IRuleChainBuilderInitial<TEntity, TProperty>> buildAction)
+        Action<IRuleChainConfiguration<TEntity, TProperty>> buildAction)
     {
         ArgumentNullException.ThrowIfNull(ruleChainBuilder);
         ArgumentNullException.ThrowIfNull(buildAction);
@@ -56,7 +56,7 @@ public static class RuleChainBuilderExtensions
         return collectionRuleChainBuilder;
     }
 
-    public static IValidatorConfiguration<TEntity, TProperty> UseValidator<TEntity, TProperty, TValidator>(
+    public static INestedValidatorConfiguration<TEntity, TProperty> UseValidator<TEntity, TProperty, TValidator>(
         this IRuleChainBuilder<TEntity, TProperty> ruleChainBuilder,
         Func<ValidationContext<TEntity>, TValidator> validatorProvider)
         where TValidator : ValidatorBase<TProperty>
@@ -72,7 +72,7 @@ public static class RuleChainBuilderExtensions
         return nestedValidationBuilder;
     }
 
-    public static IValidatorConfiguration<TEntity, TProperty> UseValidator<TEntity, TProperty, TValidator>(
+    public static INestedValidatorConfiguration<TEntity, TProperty> UseValidator<TEntity, TProperty, TValidator>(
         this IRuleChainBuilder<TEntity, TProperty> ruleChainBuilder, Of<TValidator>? _)
         where TValidator : ValidatorBase<TProperty>, new()
     {

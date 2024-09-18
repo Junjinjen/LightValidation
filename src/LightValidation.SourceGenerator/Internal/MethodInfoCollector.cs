@@ -35,23 +35,22 @@ internal sealed class MethodInfoCollector : IMethodInfoCollector
             return null;
         }
 
-        var attribute = context.Attributes[0];
-        var attributeInfo = _attributeInfoCollector.GetAttributeInfo(attribute, cancellationToken);
-        if (attributeInfo == null)
+        var attribute = _attributeInfoCollector.GetAttributeInfo(context.Attributes[0], cancellationToken);
+        if (attribute == null)
         {
             return null;
         }
 
         var namedSymbol = (INamedTypeSymbol)context.TargetSymbol;
-        var interfaceInfo = _interfaceInfoCollector.GetInterfaceInfo(namedSymbol, cancellationToken);
-        if (interfaceInfo == null)
+        var @interface = _interfaceInfoCollector.GetInterfaceInfo(namedSymbol, cancellationToken);
+        if (@interface == null)
         {
             return null;
         }
 
-        var constructorInfos = _constructorInfoCollector.GetConstructorInfos(namedSymbol, cancellationToken);
-        var classInfo = _classInfoCollector.GetClassInfo(namedSymbol, cancellationToken);
+        var constructors = _constructorInfoCollector.GetConstructorsInfo(namedSymbol, cancellationToken);
+        var @class = _classInfoCollector.GetClassInfo(namedSymbol, cancellationToken);
 
-        return new MethodInfo(attributeInfo.Value, interfaceInfo.Value, classInfo, constructorInfos);
+        return new MethodInfo(attribute.Value, @interface.Value, @class, constructors);
     }
 }

@@ -17,7 +17,7 @@ public sealed class RuleExtensionMethodGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var methodInfos = context.SyntaxProvider
+        var methods = context.SyntaxProvider
             .ForAttributeWithMetadataName(
                 AttributeInfoCollector.AttributeFullName,
                 (node, _) => node is ClassDeclarationSyntax,
@@ -25,6 +25,6 @@ public sealed class RuleExtensionMethodGenerator : IIncrementalGenerator
             .Where(x => x != null);
 
         context.RegisterSourceOutput(
-            methodInfos, (context, info) => ExtensionMethodGenerator.Generate(context, info!.Value));
+            methods, (context, method) => ExtensionMethodGenerator.Generate(context, method!.Value));
     }
 }

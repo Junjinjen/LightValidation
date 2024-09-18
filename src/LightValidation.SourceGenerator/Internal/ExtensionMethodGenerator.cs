@@ -6,7 +6,7 @@ namespace LightValidation.SourceGenerator.Internal;
 
 internal interface IExtensionMethodGenerator
 {
-    void Generate(in SourceProductionContext context, in MethodInfo info);
+    void Generate(in SourceProductionContext context, in MethodInfo method);
 }
 
 internal sealed class ExtensionMethodGenerator : IExtensionMethodGenerator
@@ -57,72 +57,72 @@ namespace {0};
     private const string FullNameDelimiter = ".";
     private const string FilenameFormat = "{0}.g.cs";
 
-    public void Generate(in SourceProductionContext context, in MethodInfo info)
+    public void Generate(in SourceProductionContext context, in MethodInfo method)
     {
-        var className = info.ClassInfo.FullName.Replace(FullNameDelimiter, string.Empty);
-        var extensionMethods = GenerateExtensionMethods(info);
+        var className = method.Class.FullName.Replace(FullNameDelimiter, string.Empty);
+        var extensionMethods = GenerateExtensionMethods(method);
 
         context.CancellationToken.ThrowIfCancellationRequested();
 
         var sourceCode = string.Format(
             CultureInfo.InvariantCulture,
             ExtensionsClassFormat,
-            info.AttributeInfo.Namespace,       // 0
-            AssemblyVersion,                    // 1
-            info.AttributeInfo.AccessModifier,  // 2
-            className,                          // 3
-            extensionMethods);                  // 4
+            method.Attribute.Namespace,      // 0
+            AssemblyVersion,                 // 1
+            method.Attribute.AccessModifier, // 2
+            className,                       // 3
+            extensionMethods);               // 4
 
         var filename = string.Format(CultureInfo.InvariantCulture, FilenameFormat, className);
 
         context.AddSource(filename, sourceCode);
     }
 
-    private static string GenerateExtensionMethods(in MethodInfo info)
+    private static string GenerateExtensionMethods(in MethodInfo method)
     {
-        var constructorInfosLength = info.ConstructorInfos.Length;
-        if (constructorInfosLength == 1)
+        var constructorCount = method.Constructors.Length;
+        if (constructorCount == 1)
         {
-            return GenerateExtensionMethod(info, info.ConstructorInfos[0]);
+            return GenerateExtensionMethod(method, method.Constructors[0]);
         }
 
-        var methods = new string[constructorInfosLength];
-        for (var i = 0; i < constructorInfosLength; i++)
+        var methods = new string[constructorCount];
+        for (var i = 0; i < constructorCount; i++)
         {
-            methods[i] = GenerateExtensionMethod(info, info.ConstructorInfos[i]);
+            methods[i] = GenerateExtensionMethod(method, method.Constructors[i]);
         }
 
         return string.Join(ExtensionMethodsDelimiter, methods);
     }
 
-    private static string GenerateExtensionMethod(in MethodInfo methodInfo, in ConstructorInfo constructorInfo)
+    private static string GenerateExtensionMethod(in MethodInfo method, in ConstructorInfo constructor)
     {
-        var outputPropertyTypeSource = GetOutputPropertyTypeSource(methodInfo.InterfaceInfo);
-        var methodParameters = constructorInfo.ParametersSource.FormatIfNotEmpty(MethodParametersFormat);
-        var constraints = methodInfo.ClassInfo.ConstraintsSource.FormatIfNotEmpty(ConstraintsFormat);
+        var outputPropertyTypeSource = GetOutputPropertyTypeSource(method.Interface);
+        var methodParameters = constructor.ParametersSource.FormatIfNotEmpty(MethodParametersFormat);
+        var constraints = method.Class.ConstraintsSource.FormatIfNotEmpty(ConstraintsFormat);
 
         return string.Format(
             CultureInfo.InvariantCulture,
             ExtensionMethodFormat,
-            methodInfo.InterfaceInfo.EntityTypeSource,    // 0
-            outputPropertyTypeSource,                     // 1
-            methodInfo.ClassInfo.FullName,                // 2 
-            methodInfo.ClassInfo.GenericParametersSource, // 3
-            methodInfo.AttributeInfo.MethodName,          // 4
-            methodInfo.InterfaceInfo.PropertyTypeSource,  // 5
-            methodParameters,                             // 6
-            constraints,                                  // 7
-            methodInfo.InterfaceInfo.RuleChainMethod,     // 8
-            constructorInfo.ArgumentsSource);  // 9
+            method.Interface.EntityTypeSource,    // 0
+            outputPropertyTypeSource,             // 1
+            method.Class.FullName,                // 2 
+            method.Class.GenericParametersSource, // 3
+            method.Attribute.MethodName,          // 4
+            method.Interface.PropertyTypeSource,  // 5
+            methodParameters,                     // 6
+            constraints,                          // 7
+            method.Interface.RuleChainMethod,     // 8
+            constructor.ArgumentsSource);         // 9
     }
 
-    private static string GetOutputPropertyTypeSource(in InterfaceInfo info)
+    private static string GetOutputPropertyTypeSource(in InterfaceInfo method)
     {
-        if (!info.HasNullablePropertyTypeModifier)
+        if (!method.HasNullablePropertyTypeModifier)
         {
-            return info.PropertyTypeSource;
+            return method.PropertyTypeSource;
         }
 
-        return info.PropertyTypeSource.TrimEnd(NullableReferenceTypeModifier);
+        return method.PropertyTypeSource.TrimEnd(NullableReferenceTypeModifier);
     }
 }

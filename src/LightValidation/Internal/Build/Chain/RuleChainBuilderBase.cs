@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace LightValidation.Internal.Build.Chain;
 
 internal abstract class RuleChainBuilderBase<TEntity, TProperty>
-    : BuilderBase, IRuleChainBuilderInitial<TEntity, TProperty>
+    : BuilderBase, IRuleChainConfiguration<TEntity, TProperty>
 {
     private readonly IPropertyConditionBuilder<TEntity, TProperty> _propertyConditionBuilder;
     private readonly IPropertyContextEditor _propertyContextEditor;

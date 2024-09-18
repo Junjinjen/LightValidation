@@ -12,7 +12,7 @@ public interface IRuleConfiguration<TEntity, out TProperty> : IRuleChainBuilder<
 
     void SetPropertyName(string propertyName);
 
-    void ApplyIndexOnPropertyName(bool value);
+    void AppendCollectionIndexToPropertyName(bool value);
 
     void SetErrorCode(string errorCode);
 
@@ -22,7 +22,7 @@ public interface IRuleConfiguration<TEntity, out TProperty> : IRuleChainBuilder<
 
     void AddErrorMetadata(string key, Func<ValidationContext<TEntity>, TProperty, object?> valueSelector);
 
-    void SetMetadataLocalization(string key, Func<object?, string> localizer);
+    void SetErrorMetadataLocalization(string key, Func<object?, string> localizer);
 
     void AddDependentRules(Action buildAction);
 }

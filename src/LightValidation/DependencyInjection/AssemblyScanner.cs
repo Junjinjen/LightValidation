@@ -35,7 +35,6 @@ public static class AssemblyScanner
             {
                 InterfaceType = customInterfaceType ?? interfaceType,
                 ValidatorType = type,
-                HasResolverConfiguration = Array.Exists(type.GetInterfaces(), x => x == typeof(IResolverConfiguration))
             };
 
         return query;

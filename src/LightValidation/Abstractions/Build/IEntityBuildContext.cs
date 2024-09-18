@@ -11,5 +11,5 @@ public interface IEntityBuildContext : IExecutionModeContext
 
     bool IsValidationBuilt { get; }
 
-    int RegisterMetadata();
+    int RegisterValidationMetadata();
 }

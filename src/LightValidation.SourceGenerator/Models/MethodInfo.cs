@@ -5,24 +5,21 @@ namespace LightValidation.SourceGenerator.Models;
 internal readonly struct MethodInfo : IEquatable<MethodInfo>
 {
     public MethodInfo(
-        AttributeInfo attributeInfo,
-        InterfaceInfo interfaceInfo,
-        ClassInfo classInfo,
-        ConstructorInfo[] constructorInfos)
+        AttributeInfo attribute, InterfaceInfo @interface, ClassInfo @class, ConstructorInfo[] constructors)
     {
-        AttributeInfo = attributeInfo;
-        InterfaceInfo = interfaceInfo;
-        ClassInfo = classInfo;
-        ConstructorInfos = constructorInfos;
+        Attribute = attribute;
+        Interface = @interface;
+        Class = @class;
+        Constructors = constructors;
     }
 
-    public readonly AttributeInfo AttributeInfo;
+    public readonly AttributeInfo Attribute;
 
-    public readonly InterfaceInfo InterfaceInfo;
+    public readonly InterfaceInfo Interface;
 
-    public readonly ClassInfo ClassInfo;
+    public readonly ClassInfo Class;
 
-    public readonly ConstructorInfo[] ConstructorInfos;
+    public readonly ConstructorInfo[] Constructors;
 
     public override bool Equals(object? obj)
     {
@@ -31,22 +28,22 @@ internal readonly struct MethodInfo : IEquatable<MethodInfo>
 
     public bool Equals(MethodInfo other)
     {
-        return AttributeInfo.Equals(other.AttributeInfo)
-               && InterfaceInfo.Equals(other.InterfaceInfo)
-               && ClassInfo.Equals(other.ClassInfo)
-               && ConstructorInfos.AsSpan().SequenceEqual(other.ConstructorInfos.AsSpan());
+        return Attribute.Equals(other.Attribute)
+               && Interface.Equals(other.Interface)
+               && Class.Equals(other.Class)
+               && Constructors.AsSpan().SequenceEqual(other.Constructors.AsSpan());
     }
 
     public override int GetHashCode()
     {
         var hashCode = -199626678;
-        hashCode = (hashCode * -1521134295) + AttributeInfo.GetHashCode();
-        hashCode = (hashCode * -1521134295) + InterfaceInfo.GetHashCode();
-        hashCode = (hashCode * -1521134295) + ClassInfo.GetHashCode();
+        hashCode = (hashCode * -1521134295) + Attribute.GetHashCode();
+        hashCode = (hashCode * -1521134295) + Interface.GetHashCode();
+        hashCode = (hashCode * -1521134295) + Class.GetHashCode();
 
-        for (var i = 0; i < ConstructorInfos.Length; i++)
+        for (var i = 0; i < Constructors.Length; i++)
         {
-            hashCode = (hashCode * -1521134295) + ConstructorInfos[i].GetHashCode();
+            hashCode = (hashCode * -1521134295) + Constructors[i].GetHashCode();
         }
 
         return hashCode;

@@ -32,7 +32,7 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
         _collectionMetadataFactory = collectionMetadataFactory;
     }
 
-    public IEntityValidationContext<TEntity> EntityValidationContext => _collectionContext.EntityValidationContext;
+    public IEntityValidationContext<TEntity> EntityContext => _collectionContext.EntityContext;
 
     public ValidationContext<TEntity> ValidationContext => _collectionContext.ValidationContext;
 
@@ -89,7 +89,7 @@ internal sealed class ElementContext<TEntity, TProperty> : IElementContext<TEnti
         var context = new CollectionIndexContext<TEntity, TProperty>
         {
             StringBuilder = builder,
-            Entity = EntityValidationContext.ValidationContext.Entity,
+            Entity = EntityContext.ValidationContext.Entity,
             Element = PropertyValue,
             Index = ElementIndex,
         };

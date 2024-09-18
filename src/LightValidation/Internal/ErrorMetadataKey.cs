@@ -1,6 +1,6 @@
 ﻿namespace LightValidation.Internal;
 
-internal static class MetadataKey
+internal static class ErrorMetadataKey
 {
     public const string PropertyName = "PropertyName";
 

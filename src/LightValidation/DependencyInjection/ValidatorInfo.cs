@@ -8,5 +8,8 @@ public sealed class ValidatorInfo
 
     public required Type ValidatorType { get; init; }
 
-    public required bool HasResolverConfiguration { get; init; }
+    public bool HasInterface<TInterface>()
+    {
+        return Array.Exists(ValidatorType.GetInterfaces(), x => x == typeof(TInterface));
+    }
 }

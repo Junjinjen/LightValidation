@@ -12,11 +12,11 @@ namespace LightValidation.Internal.Build.Rule.FailureGeneration;
 
 internal interface IRuleFailureGeneratorBuilder<TEntity, TProperty>
 {
-    IMetadataProvider CreateMetadataProvider(string key);
+    IErrorMetadataProvider CreateErrorMetadataProvider(string key);
 
     void SetPropertyName(string propertyName);
 
-    void ApplyIndexOnPropertyName(bool value, bool isDefaultMode);
+    void AppendCollectionIndexToPropertyName(bool value, bool isDefaultMode);
 
     void SetErrorCode(string errorCode, bool isDefaultMode);
 
@@ -26,7 +26,7 @@ internal interface IRuleFailureGeneratorBuilder<TEntity, TProperty>
 
     void AddErrorMetadata(string key, Func<ValidationContext<TEntity>, TProperty, object?> valueSelector);
 
-    void SetMetadataLocalization(string key, Func<object?, string> localizer);
+    void SetErrorMetadataLocalization(string key, Func<object?, string> localizer);
 
     IRuleFailureGenerator<TEntity, TProperty> Build(string defaultPropertyName, Type ruleType);
 }
@@ -39,15 +39,15 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
     private readonly IRuntimeMetadataGeneratorFactory _runtimeMetadataGeneratorFactory;
     private readonly IStaticMetadataGeneratorFactory _staticMetadataGeneratorFactory;
     private readonly IRuleFailureGeneratorFactory _ruleFailureGeneratorFactory;
+    private readonly IErrorMetadataProviderFactory _metadataProviderFactory;
     private readonly IDefaultRuleConfiguration _defaultRuleConfiguration;
-    private readonly IMetadataProviderFactory _metadataProviderFactory;
 
     private readonly Dictionary<string, Func<ValidationContext<TEntity>, TProperty, object?>> _runtimeMetadata = [];
     private readonly Dictionary<string, Func<object?, string>> _metadataLocalizers = [];
     private readonly Dictionary<string, object?> _staticMetadata = [];
-    private bool _defaultApplyIndexOnPropertyName = true;
+    private bool _defaultAppendCollectionIndex = true;
     private string? _defaultErrorDescription;
-    private bool? _applyIndexOnPropertyName;
+    private bool? _appendCollectionIndex;
     private string? _defaultErrorCode;
     private string? _errorDescription;
     private string? _propertyName;
@@ -59,19 +59,19 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         IRuntimeMetadataGeneratorFactory runtimeMetadataGeneratorFactory,
         IStaticMetadataGeneratorFactory staticMetadataGeneratorFactory,
         IRuleFailureGeneratorFactory ruleFailureGeneratorFactory,
-        IDefaultRuleConfiguration defaultRuleConfiguration,
-        IMetadataProviderFactory metadataProviderFactory)
+        IErrorMetadataProviderFactory metadataProviderFactory,
+        IDefaultRuleConfiguration defaultRuleConfiguration)
     {
         _runtimeDescriptionGeneratorFactory = runtimeDescriptionGeneratorFactory;
         _staticDescriptionGeneratorFactory = staticDescriptionGeneratorFactory;
         _runtimeMetadataGeneratorFactory = runtimeMetadataGeneratorFactory;
         _staticMetadataGeneratorFactory = staticMetadataGeneratorFactory;
         _ruleFailureGeneratorFactory = ruleFailureGeneratorFactory;
-        _defaultRuleConfiguration = defaultRuleConfiguration;
         _metadataProviderFactory = metadataProviderFactory;
+        _defaultRuleConfiguration = defaultRuleConfiguration;
     }
 
-    public IMetadataProvider CreateMetadataProvider(string key)
+    public IErrorMetadataProvider CreateErrorMetadataProvider(string key)
     {
         ValidateMetadataKey(key, allowPropertyValueName: false);
         EnsureNotBuilt();
@@ -90,17 +90,17 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         _propertyName = propertyName;
     }
 
-    public void ApplyIndexOnPropertyName(bool value, bool isDefaultMode)
+    public void AppendCollectionIndexToPropertyName(bool value, bool isDefaultMode)
     {
         EnsureNotBuilt();
 
         if (isDefaultMode)
         {
-            _defaultApplyIndexOnPropertyName = value;
+            _defaultAppendCollectionIndex = value;
             return;
         }
 
-        _applyIndexOnPropertyName = value;
+        _appendCollectionIndex = value;
     }
 
     public void SetErrorCode(string errorCode, bool isDefaultMode)
@@ -147,7 +147,7 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         _runtimeMetadata.Add(key, valueSelector);
     }
 
-    public void SetMetadataLocalization(string key, Func<object?, string> localizer)
+    public void SetErrorMetadataLocalization(string key, Func<object?, string> localizer)
     {
         ValidateMetadataKey(key, allowPropertyValueName: true);
         EnsureNotBuilt();
@@ -165,12 +165,12 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         var errorDescription = GetErrorDescription(ruleType);
 
         var insertCollectionIndex = HasCollectionIndexFormatting(errorDescription);
-        var metadataGenerator = CreateMetadataGenerator(insertCollectionIndex);
+        var metadataGenerator = CreateErrorMetadataGenerator(insertCollectionIndex);
         var descriptionGenerator = CreateDescriptionGenerator(propertyName, errorDescription, insertCollectionIndex);
 
         var parameters = new RuleFailureGeneratorParameters<TEntity, TProperty>
         {
-            ApplyIndexOnPropertyName = _applyIndexOnPropertyName ?? _defaultApplyIndexOnPropertyName,
+            AppendCollectionIndexToPropertyName = _appendCollectionIndex ?? _defaultAppendCollectionIndex,
             PropertyName = propertyName,
             ErrorCode = errorCode,
             MetadataGenerator = metadataGenerator,
@@ -186,9 +186,9 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         [CallerArgumentExpression(nameof(value))] string? paramName = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(value, paramName);
-        if (value == MetadataKey.PropertyName
-            || value == MetadataKey.CollectionIndex
-            || (!allowPropertyValueName && value == MetadataKey.PropertyValue))
+        if (value == ErrorMetadataKey.PropertyName
+            || value == ErrorMetadataKey.CollectionIndex
+            || (!allowPropertyValueName && value == ErrorMetadataKey.PropertyValue))
         {
             throw new ArgumentException(
                 $"Unable to use the reserved metadata key \"{value}\".", paramName);
@@ -197,12 +197,12 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
 
     private static bool HasPropertyValueFormatting(string errorDescription)
     {
-        return errorDescription.ContainsMetadataKey(MetadataKey.PropertyValue);
+        return errorDescription.ContainsMetadataKey(ErrorMetadataKey.PropertyValue);
     }
 
     private static bool HasCollectionIndexFormatting(string errorDescription)
     {
-        return errorDescription.ContainsMetadataKey(MetadataKey.CollectionIndex);
+        return errorDescription.ContainsMetadataKey(ErrorMetadataKey.CollectionIndex);
     }
 
     private string GetErrorCode(Type ruleType)
@@ -235,7 +235,7 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
         return _defaultRuleConfiguration.GetErrorDescription(ruleType);
     }
 
-    private IErrorMetadataGenerator<TEntity, TProperty> CreateMetadataGenerator(bool insertCollectionIndex)
+    private IErrorMetadataGenerator<TEntity, TProperty> CreateErrorMetadataGenerator(bool insertCollectionIndex)
     {
         if (_runtimeMetadata.Count != 0 || insertCollectionIndex)
         {
@@ -283,6 +283,6 @@ internal sealed class RuleFailureGeneratorBuilder<TEntity, TProperty>
             return _runtimeMetadata.Keys;
         }
 
-        return _runtimeMetadata.Keys.Concat([MetadataKey.CollectionIndex]);
+        return _runtimeMetadata.Keys.Concat([ErrorMetadataKey.CollectionIndex]);
     }
 }

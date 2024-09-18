@@ -31,13 +31,13 @@ internal sealed class RuleContext<TEntity, TProperty> : BuildContextBase, IRuleB
 
     public Delegate PropertySelector => ReturnWithBuildCheck(_propertyContext.PropertySelector);
 
-    protected override bool IsBuilt => _propertyContext.EntityBuildContext.IsValidationBuilt;
+    protected override bool IsBuilt => _propertyContext.EntityContext.IsValidationBuilt;
 
-    public IMetadataProvider CreateMetadataProvider(string key)
+    public IErrorMetadataProvider CreateErrorMetadataProvider(string key)
     {
         EnsureNotBuilt();
 
-        return _ruleFailureGeneratorBuilder.CreateMetadataProvider(key);
+        return _ruleFailureGeneratorBuilder.CreateErrorMetadataProvider(key);
     }
 
     public void AddCondition(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition)
@@ -47,11 +47,11 @@ internal sealed class RuleContext<TEntity, TProperty> : BuildContextBase, IRuleB
         _propertyConditionBuilder.AddCondition(condition);
     }
 
-    public void ApplyIndexOnPropertyName(bool value)
+    public void AppendCollectionIndexToPropertyName(bool value)
     {
         EnsureNotBuilt();
 
-        _ruleFailureGeneratorBuilder.ApplyIndexOnPropertyName(value, isDefaultMode: true);
+        _ruleFailureGeneratorBuilder.AppendCollectionIndexToPropertyName(value, isDefaultMode: true);
     }
 
     public void SetDefaultErrorCode(string defaultErrorCode)
@@ -82,10 +82,10 @@ internal sealed class RuleContext<TEntity, TProperty> : BuildContextBase, IRuleB
         _ruleFailureGeneratorBuilder.AddErrorMetadata(key, valueSelector);
     }
 
-    public void SetMetadataLocalization(string key, Func<object?, string> localizer)
+    public void SetErrorMetadataLocalization(string key, Func<object?, string> localizer)
     {
         EnsureNotBuilt();
 
-        _ruleFailureGeneratorBuilder.SetMetadataLocalization(key, localizer);
+        _ruleFailureGeneratorBuilder.SetErrorMetadataLocalization(key, localizer);
     }
 }

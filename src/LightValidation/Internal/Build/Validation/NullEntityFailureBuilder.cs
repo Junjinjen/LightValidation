@@ -90,8 +90,8 @@ internal sealed class NullEntityFailureBuilder : BuilderBase, INullEntityFailure
             return defaultDescription;
         }
 
-        _errorDescription = _errorDescription.Format(MetadataKey.PropertyName, propertyName);
-        _errorDescription = _errorDescription.Format(MetadataKey.PropertyValue, null);
+        _errorDescription = _errorDescription.Format(ErrorMetadataKey.PropertyName, propertyName);
+        _errorDescription = _errorDescription.Format(ErrorMetadataKey.PropertyValue, null);
 
         return _errorDescription;
     }

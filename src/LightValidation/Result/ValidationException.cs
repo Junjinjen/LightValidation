@@ -53,6 +53,6 @@ public class ValidationException : Exception
 
     private static string GetMessage(ValidationResult validationResult)
     {
-        return $"Validation failed [Broken rules count: {validationResult.BrokenRules.Count}].";
+        return $"Validation failed [Broken rule count: {validationResult.BrokenRules.Count}].";
     }
 }

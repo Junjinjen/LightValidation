@@ -8,7 +8,7 @@ using System.Linq;
 namespace LightValidation.Internal.Build.Chain;
 
 internal interface IRuleChainBuilderInternal<TEntity, TProperty>
-    : IRuleChainBuilderInitial<TEntity, TProperty>, IPropertyValidatorBuilder<TEntity, TProperty>
+    : IRuleChainConfiguration<TEntity, TProperty>, IPropertyValidatorBuilder<TEntity, TProperty>
 {
 }
 
@@ -43,7 +43,7 @@ internal sealed class RuleChainBuilder<TEntity, TProperty>
             return propertyValidators.Single();
         }
 
-        var metadataId = condition != null ? context.RegisterMetadata() : Constants.InvalidMetadataId;
+        var metadataId = condition != null ? context.RegisterValidationMetadata() : Constants.InvalidMetadataId;
 
         return _ruleChainFactory.Create(condition, propertyValidators, metadataId);
     }

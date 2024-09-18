@@ -16,7 +16,7 @@ internal sealed class InterfaceInfoCollector : IInterfaceInfoCollector
     private const string LightValidationAssemblyName = "LightValidation";
     private const string AddRuleBuilderMethodName = "AddRuleBuilder";
     private const string AddRuleMethodName = "AddRule";
-    private const int InterfaceTypeArgumentsCount = 2;
+    private const int InterfaceTypeArgumentCount = 2;
     private const int PropertyTypeIndex = 1;
     private const int EntityTypeIndex = 0;
 
@@ -35,7 +35,7 @@ internal sealed class InterfaceInfoCollector : IInterfaceInfoCollector
             return null;
         }
 
-        if (interfaceSymbol.TypeArguments.Length != InterfaceTypeArgumentsCount)
+        if (interfaceSymbol.TypeArguments.Length != InterfaceTypeArgumentCount)
         {
             return null;
         }

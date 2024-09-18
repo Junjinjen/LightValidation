@@ -9,469 +9,449 @@ namespace LightValidation.Extensions;
 public static class RuleConfigurationExtensions
 {
     public static IRuleConfiguration<TEntity, TProperty> WithCondition<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(condition);
+        configuration.AddCondition(condition);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithCondition<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(condition);
+        configuration.AddCondition(condition);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithCondition<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, Func<TProperty, ValueTask<bool>> condition)
+        this IRuleConfiguration<TEntity, TProperty> configuration, Func<TProperty, ValueTask<bool>> condition)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition((_, propertyValue) => condition.Invoke(propertyValue));
+        configuration.AddCondition((_, propertyValue) => condition.Invoke(propertyValue));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithCondition<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
-        Func<TProperty, ValueTask<bool>> condition)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, Func<TProperty, ValueTask<bool>> condition)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition((_, propertyValue) => condition.Invoke(propertyValue));
+        configuration.AddCondition((_, propertyValue) => condition.Invoke(propertyValue));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithCondition<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         Func<ValidationContext<TEntity>, TProperty, bool> condition)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(
+        configuration.AddCondition(
             (context, propertyValue) => ValueTask.FromResult(condition.Invoke(context, propertyValue)));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithCondition<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         Func<ValidationContext<TEntity>, TProperty, bool> condition)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(
+        configuration.AddCondition(
             (context, propertyValue) => ValueTask.FromResult(condition.Invoke(context, propertyValue)));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithCondition<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, Func<TProperty, bool> condition)
+        this IRuleConfiguration<TEntity, TProperty> configuration, Func<TProperty, bool> condition)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(
-            (_, propertyValue) => ValueTask.FromResult(condition.Invoke(propertyValue)));
+        configuration.AddCondition((_, propertyValue) => ValueTask.FromResult(condition.Invoke(propertyValue)));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithCondition<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, Func<TProperty, bool> condition)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, Func<TProperty, bool> condition)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(condition);
 
-        ruleConfiguration.AddCondition(
-            (_, propertyValue) => ValueTask.FromResult(condition.Invoke(propertyValue)));
+        configuration.AddCondition((_, propertyValue) => ValueTask.FromResult(condition.Invoke(propertyValue)));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithExecutionMode<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, ExecutionMode mode)
+        this IRuleConfiguration<TEntity, TProperty> configuration, ExecutionMode mode)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         mode.EnsureDefined();
 
-        ruleConfiguration.SetExecutionMode(mode);
+        configuration.SetExecutionMode(mode);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithExecutionMode<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, ExecutionMode mode)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, ExecutionMode mode)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         mode.EnsureDefined();
 
-        ruleConfiguration.SetExecutionMode(mode);
+        configuration.SetExecutionMode(mode);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithPropertyName<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string propertyName)
+        this IRuleConfiguration<TEntity, TProperty> configuration, string propertyName)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(propertyName);
 
-        ruleConfiguration.SetPropertyName(propertyName);
+        configuration.SetPropertyName(propertyName);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithPropertyName<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, string propertyName)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, string propertyName)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(propertyName);
 
-        ruleConfiguration.SetPropertyName(propertyName);
+        configuration.SetPropertyName(propertyName);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
-    public static IRuleConfiguration<TEntity, TProperty> WithIndexOnPropertyName<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration)
+    public static IRuleConfiguration<TEntity, TProperty> AppendCollectionIndexToPropertyName<TEntity, TProperty>(
+        this IRuleConfiguration<TEntity, TProperty> configuration, bool value = true)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
 
-        ruleConfiguration.ApplyIndexOnPropertyName(value: true);
+        configuration.AppendCollectionIndexToPropertyName(value);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
-    public static IRuleConfiguration<TEntity, TProperty, TRule> WithIndexOnPropertyName<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration)
+    public static IRuleConfiguration<TEntity, TProperty, TRule> AppendCollectionIndexToPropertyName
+        <TEntity, TProperty, TRule>(
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, bool value = true)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
 
-        ruleConfiguration.ApplyIndexOnPropertyName(value: true);
+        configuration.AppendCollectionIndexToPropertyName(value);
 
-        return ruleConfiguration;
-    }
-
-    public static IRuleConfiguration<TEntity, TProperty> WithoutIndexOnPropertyName<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration)
-    {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
-
-        ruleConfiguration.ApplyIndexOnPropertyName(value: false);
-
-        return ruleConfiguration;
-    }
-
-    public static IRuleConfiguration<TEntity, TProperty, TRule> WithoutIndexOnPropertyName<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration)
-        where TRule : notnull
-    {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
-
-        ruleConfiguration.ApplyIndexOnPropertyName(value: false);
-
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorCode<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string errorCode)
+        this IRuleConfiguration<TEntity, TProperty> configuration, string errorCode)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(errorCode);
 
-        ruleConfiguration.SetErrorCode(errorCode);
+        configuration.SetErrorCode(errorCode);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorCode<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, string errorCode)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, string errorCode)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(errorCode);
 
-        ruleConfiguration.SetErrorCode(errorCode);
+        configuration.SetErrorCode(errorCode);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorDescription<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string errorDescription)
+        this IRuleConfiguration<TEntity, TProperty> configuration, string errorDescription)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(errorDescription);
 
-        ruleConfiguration.SetErrorDescription(errorDescription);
+        configuration.SetErrorDescription(errorDescription);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorDescription<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, string errorDescription)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, string errorDescription)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(errorDescription);
 
-        ruleConfiguration.SetErrorDescription(errorDescription);
+        configuration.SetErrorDescription(errorDescription);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string key, object? value)
+        this IRuleConfiguration<TEntity, TProperty> configuration, string key, object? value)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
 
-        ruleConfiguration.AddErrorMetadata(key, value);
+        configuration.AddErrorMetadata(key, value);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, string key, object? value)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, string key, object? value)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
 
-        ruleConfiguration.AddErrorMetadata(key, value);
+        configuration.AddErrorMetadata(key, value);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty, TValue>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         string key,
         TValue value,
         Func<TValue, string> localizer)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, value);
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, value);
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TValue, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         string key,
         TValue value,
         Func<TValue, string> localizer)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, value);
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, value);
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         string key,
         Func<ValidationContext<TEntity>, TProperty, object?> valueSelector)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
 
-        ruleConfiguration.AddErrorMetadata(key, valueSelector);
+        configuration.AddErrorMetadata(key, valueSelector);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         string key,
         Func<ValidationContext<TEntity>, TProperty, object?> valueSelector)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
 
-        ruleConfiguration.AddErrorMetadata(key, valueSelector);
+        configuration.AddErrorMetadata(key, valueSelector);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty, TValue>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         string key,
         Func<ValidationContext<TEntity>, TProperty, TValue> valueSelector,
         Func<TValue, string> localizer)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, valueSelector);
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, valueSelector);
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TValue, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         string key,
         Func<ValidationContext<TEntity>, TProperty, TValue> valueSelector,
         Func<TValue, string> localizer)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, valueSelector);
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, valueSelector);
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         string key,
         Func<TProperty, object?> valueSelector)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
 
-        ruleConfiguration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
+        configuration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         string key,
         Func<TProperty, object?> valueSelector)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
 
-        ruleConfiguration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
+        configuration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadata<TEntity, TProperty, TValue>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty> configuration,
         string key,
         Func<TProperty, TValue> valueSelector,
         Func<TValue, string> localizer)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadata<TEntity, TProperty, TValue, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration,
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
         string key,
         Func<TProperty, TValue> valueSelector,
         Func<TValue, string> localizer)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(valueSelector);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
-        ruleConfiguration.SetMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
+        configuration.AddErrorMetadata(key, (_, propertyValue) => valueSelector.Invoke(propertyValue));
+        configuration.SetErrorMetadataLocalization(key, x => localizer.Invoke((TValue)x!));
 
-        return ruleConfiguration;
+        return configuration;
     }
 
-    public static IRuleConfiguration<TEntity, TProperty> WithMetadataLocalization<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, string key, Func<object?, string> localizer)
+    public static IRuleConfiguration<TEntity, TProperty> WithErrorMetadataLocalization<TEntity, TProperty>(
+        this IRuleConfiguration<TEntity, TProperty> configuration, string key, Func<object?, string> localizer)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.SetMetadataLocalization(key, localizer);
+        configuration.SetErrorMetadataLocalization(key, localizer);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
-    public static IRuleConfiguration<TEntity, TProperty, TRule> WithMetadataLocalization<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, string key, Func<object?, string> localizer)
+    public static IRuleConfiguration<TEntity, TProperty, TRule> WithErrorMetadataLocalization
+        <TEntity, TProperty, TRule>(
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration,
+        string key,
+        Func<object?, string> localizer)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentException.ThrowIfNullOrEmpty(key);
         ArgumentNullException.ThrowIfNull(localizer);
 
-        ruleConfiguration.SetMetadataLocalization(key, localizer);
+        configuration.SetErrorMetadataLocalization(key, localizer);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty> WithDependentRules<TEntity, TProperty>(
-        this IRuleConfiguration<TEntity, TProperty> ruleConfiguration, Action buildAction)
+        this IRuleConfiguration<TEntity, TProperty> configuration, Action buildAction)
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(buildAction);
 
-        ruleConfiguration.AddDependentRules(buildAction);
+        configuration.AddDependentRules(buildAction);
 
-        return ruleConfiguration;
+        return configuration;
     }
 
     public static IRuleConfiguration<TEntity, TProperty, TRule> WithDependentRules<TEntity, TProperty, TRule>(
-        this IRuleConfiguration<TEntity, TProperty, TRule> ruleConfiguration, Action buildAction)
+        this IRuleConfiguration<TEntity, TProperty, TRule> configuration, Action buildAction)
         where TRule : notnull
     {
-        ArgumentNullException.ThrowIfNull(ruleConfiguration);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(buildAction);
 
-        ruleConfiguration.AddDependentRules(buildAction);
+        configuration.AddDependentRules(buildAction);
 
-        return ruleConfiguration;
+        return configuration;
     }
 }

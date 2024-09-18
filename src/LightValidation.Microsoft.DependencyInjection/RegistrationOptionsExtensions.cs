@@ -14,12 +14,13 @@ public static class RegistrationOptionsExtensions
 
         options.Services.TryAddScoped<IDependencyResolver, DependencyResolver>();
 
-        return options.AddModifier(info => info.HasResolverConfiguration, (serviceProvider, validator) =>
-        {
-            var dependencyResolver = serviceProvider.GetRequiredService<IDependencyResolver>();
-            var typed = (IResolverConfiguration)validator;
+        return options.AddModifier(
+            validator => validator.HasInterface<IResolverConfiguration>(), (serviceProvider, validator) =>
+            {
+                var dependencyResolver = serviceProvider.GetRequiredService<IDependencyResolver>();
+                var typed = (IResolverConfiguration)validator;
 
-            typed.SetDependencyResolver(dependencyResolver);
-        });
+                typed.SetDependencyResolver(dependencyResolver);
+            });
     }
 }

@@ -5,7 +5,7 @@ namespace LightValidation.Abstractions.Build;
 
 public interface IPropertyBuildContext : IExecutionModeContext
 {
-    IEntityBuildContext EntityBuildContext { get; }
+    IEntityBuildContext EntityContext { get; }
 
     Type ValidatorType { get; }
 
@@ -15,5 +15,5 @@ public interface IPropertyBuildContext : IExecutionModeContext
 
     string PropertyName { get; }
 
-    int RegisterMetadata();
+    int RegisterValidationMetadata();
 }

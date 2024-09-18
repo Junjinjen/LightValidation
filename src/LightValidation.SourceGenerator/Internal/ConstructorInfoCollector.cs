@@ -7,7 +7,7 @@ namespace LightValidation.SourceGenerator.Internal;
 
 internal interface IConstructorInfoCollector
 {
-    ConstructorInfo[] GetConstructorInfos(INamedTypeSymbol symbol, CancellationToken cancellationToken);
+    ConstructorInfo[] GetConstructorsInfo(INamedTypeSymbol symbol, CancellationToken cancellationToken);
 }
 
 internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
@@ -32,11 +32,11 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
             SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier |
             SymbolDisplayMiscellaneousOptions.AllowDefaultLiteral);
 
-    public ConstructorInfo[] GetConstructorInfos(INamedTypeSymbol symbol, CancellationToken cancellationToken)
+    public ConstructorInfo[] GetConstructorsInfo(INamedTypeSymbol symbol, CancellationToken cancellationToken)
     {
-        var constructorsLength = symbol.Constructors.Length;
-        var result = new ConstructorInfo[constructorsLength];
-        for (var i = 0; i < constructorsLength; i++)
+        var constructorCount = symbol.Constructors.Length;
+        var result = new ConstructorInfo[constructorCount];
+        for (var i = 0; i < constructorCount; i++)
         {
             cancellationToken.ThrowIfCancellationRequested();
             result[i] = GetConstructorInfo(symbol.Constructors[i]);
@@ -72,8 +72,8 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
     {
         var builder = new StringBuilder();
 
-        var parametersCount = symbol.Parameters.Length;
-        for (var i = 0; i < parametersCount; i++)
+        var parameterCount = symbol.Parameters.Length;
+        for (var i = 0; i < parameterCount; i++)
         {
             var parameter = symbol.Parameters[i];
             var modifier = GetRefModifier(parameter.RefKind);
@@ -81,7 +81,7 @@ internal sealed class ConstructorInfoCollector : IConstructorInfoCollector
             builder.Append(modifier);
             builder.Append(parameter.Name);
 
-            if (i < parametersCount - 1)
+            if (i < parameterCount - 1)
             {
                 builder.Append(ArgumentsSeparator);
             }

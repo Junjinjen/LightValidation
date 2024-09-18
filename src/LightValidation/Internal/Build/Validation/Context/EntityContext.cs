@@ -48,7 +48,7 @@ internal sealed class EntityContext : BuildContextBase, IEntityContextInternal
 
     protected override bool IsBuilt => IsValidationBuilt;
 
-    public int RegisterMetadata()
+    public int RegisterValidationMetadata()
     {
         EnsureNotBuilt();
 

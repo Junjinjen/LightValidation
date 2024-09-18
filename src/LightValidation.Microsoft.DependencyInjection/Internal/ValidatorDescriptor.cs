@@ -9,12 +9,12 @@ internal sealed class ValidatorDescriptor
 {
     private List<Action<IServiceProvider, object>>? _modifiers;
 
-    public ValidatorDescriptor(ValidatorInfo validatorInfo)
+    public ValidatorDescriptor(ValidatorInfo validator)
     {
-        ValidatorInfo = validatorInfo;
+        Validator = validator;
     }
 
-    public ValidatorInfo ValidatorInfo { get; }
+    public ValidatorInfo Validator { get; }
 
     public void AddModifier(Action<IServiceProvider, object> modifier)
     {
@@ -28,13 +28,13 @@ internal sealed class ValidatorDescriptor
     {
         if (_modifiers == null)
         {
-            return new ServiceDescriptor(ValidatorInfo.InterfaceType, ValidatorInfo.ValidatorType, lifetime);
+            return new ServiceDescriptor(Validator.InterfaceType, Validator.ValidatorType, lifetime);
         }
 
         var modifier = cache.GetCombinedModifier(_modifiers);
-        var validatorFactory = ActivatorUtilities.CreateFactory(ValidatorInfo.ValidatorType, Type.EmptyTypes);
+        var validatorFactory = ActivatorUtilities.CreateFactory(Validator.ValidatorType, Type.EmptyTypes);
 
-        return new ServiceDescriptor(ValidatorInfo.InterfaceType, serviceProvider =>
+        return new ServiceDescriptor(Validator.InterfaceType, serviceProvider =>
         {
             var validator = validatorFactory.Invoke(serviceProvider, null);
             modifier.Invoke(serviceProvider, validator);

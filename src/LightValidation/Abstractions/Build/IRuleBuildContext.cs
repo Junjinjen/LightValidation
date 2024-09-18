@@ -13,11 +13,11 @@ public interface IRuleBuildContext<TEntity, out TProperty>
 
     Delegate PropertySelector { get; }
 
-    IMetadataProvider CreateMetadataProvider(string key);
+    IErrorMetadataProvider CreateErrorMetadataProvider(string key);
 
     void AddCondition(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> condition);
 
-    void ApplyIndexOnPropertyName(bool value);
+    void AppendCollectionIndexToPropertyName(bool value);
 
     void SetDefaultErrorCode(string defaultErrorCode);
 
@@ -27,5 +27,5 @@ public interface IRuleBuildContext<TEntity, out TProperty>
 
     void AddErrorMetadata(string key, Func<ValidationContext<TEntity>, TProperty, object?> valueSelector);
 
-    void SetMetadataLocalization(string key, Func<object?, string> localizer);
+    void SetErrorMetadataLocalization(string key, Func<object?, string> localizer);
 }
