@@ -16,10 +16,12 @@ internal interface IAttributeInfoCollector
 
 internal sealed class AttributeInfoCollector : IAttributeInfoCollector
 {
+    private const string SavePropertyNullabilityParameterName = "SavePropertyNullability";
     private const string DefaultNamespace = "LightValidation.Extensions";
     private const string InternalAccessModifierSource = "internal";
     private const string PublicAccessModifierSource = "public";
     private const string NamespaceParameterName = "Namespace";
+    private const bool DefaultSavePropertyNullability = false;
     private const string IsPublicParameterName = "IsPublic";
     private const int MethodNameConstructorIndex = 0;
     private const bool DefaultIsPublicValue = false;
@@ -34,7 +36,11 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
             return null;
         }
 
-        if (!TryParseNamedArguments(attributeData.NamedArguments, out var isPublicIndex, out var namespaceIndex))
+        if (!TryParseNamedArguments(
+            attributeData.NamedArguments,
+            out var isPublicIndex,
+            out var savePropertyNullabilityIndex,
+            out var namespaceIndex))
         {
             return null;
         }
@@ -42,6 +48,14 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
         cancellationToken.ThrowIfCancellationRequested();
         var isPublic = GetIsPublic(attributeData.NamedArguments, isPublicIndex);
         if (isPublic == null)
+        {
+            return null;
+        }
+
+        var savePropertyNullability = GetSavePropertyNullability(
+            attributeData.NamedArguments, savePropertyNullabilityIndex);
+
+        if (savePropertyNullability == null)
         {
             return null;
         }
@@ -54,7 +68,7 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
 
         var accessModifier = isPublic.Value ? PublicAccessModifierSource : InternalAccessModifierSource;
 
-        return new AttributeInfo(accessModifier, methodName!, @namespace!);
+        return new AttributeInfo(accessModifier, savePropertyNullability.Value, methodName!, @namespace!);
     }
 
     private static string? GetMethodName(in ImmutableArray<TypedConstant> constructorArguments)
@@ -76,9 +90,11 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
     private static bool TryParseNamedArguments(
         in ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments,
         out int isPublicIndex,
+        out int savePropertyNullabilityIndex,
         out int namespaceIndex)
     {
         isPublicIndex = -1;
+        savePropertyNullabilityIndex = -1;
         namespaceIndex = -1;
 
         for (var i = 0; i < namedArguments.Length; i++)
@@ -93,6 +109,12 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
             if (key == NamespaceParameterName)
             {
                 namespaceIndex = i;
+                continue;
+            }
+
+            if (key == SavePropertyNullabilityParameterName)
+            {
+                savePropertyNullabilityIndex = i;
                 continue;
             }
 
@@ -111,6 +133,23 @@ internal sealed class AttributeInfoCollector : IAttributeInfoCollector
         }
 
         var argument = namedArguments[isPublicIndex].Value;
+        if (!argument.IsValid())
+        {
+            return null;
+        }
+
+        return argument.Value is bool boolValue ? boolValue : null;
+    }
+
+    private static bool? GetSavePropertyNullability(
+        in ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments, int savePropertyNullabilityIndex)
+    {
+        if (savePropertyNullabilityIndex < 0)
+        {
+            return DefaultSavePropertyNullability;
+        }
+
+        var argument = namedArguments[savePropertyNullabilityIndex].Value;
         if (!argument.IsValid())
         {
             return null;

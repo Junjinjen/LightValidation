@@ -97,7 +97,9 @@ namespace {0};
 
     private static string GenerateExtensionMethod(in MethodInfo method, in ConstructorInfo constructor)
     {
-        var outputPropertyTypeSource = GetOutputPropertyTypeSource(method.Interface);
+        var outputPropertyTypeSource = GetOutputPropertyTypeSource(
+            method.Interface, method.Attribute.SavePropertyNullability);
+
         var methodParameters = constructor.ParametersSource.FormatIfNotEmpty(MethodParametersFormat);
         var constraints = method.Class.ConstraintsSource.FormatIfNotEmpty(ConstraintsFormat);
 
@@ -116,13 +118,13 @@ namespace {0};
             constructor.ArgumentsSource);         // 9
     }
 
-    private static string GetOutputPropertyTypeSource(in InterfaceInfo method)
+    private static string GetOutputPropertyTypeSource(in InterfaceInfo @interface, bool savePropertyNullability)
     {
-        if (!method.HasNullablePropertyTypeModifier)
+        if (!@interface.HasNullablePropertyTypeModifier || savePropertyNullability)
         {
-            return method.PropertyTypeSource;
+            return @interface.PropertyTypeSource;
         }
 
-        return method.PropertyTypeSource.TrimEnd(NullableReferenceTypeModifier);
+        return @interface.PropertyTypeSource.TrimEnd(NullableReferenceTypeModifier);
     }
 }

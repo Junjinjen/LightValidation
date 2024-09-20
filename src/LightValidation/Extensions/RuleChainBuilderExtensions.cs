@@ -1,5 +1,6 @@
 ﻿using LightValidation.Abstractions.Build;
 using LightValidation.Internal;
+using LightValidation.Rules;
 using System;
 using System.Collections.Generic;
 
@@ -77,5 +78,66 @@ public static class RuleChainBuilderExtensions
         where TValidator : ValidatorBase<TProperty>, new()
     {
         return ruleChainBuilder.UseValidator(_ => new TValidator());
+    }
+
+    public static IRuleChainConfiguration<TEntity, TProperty> WhenNotNull<TEntity, TProperty>(
+        IRuleChainConfiguration<TEntity, TProperty?> configuration)
+        where TProperty : class
+    {
+        return configuration.WithCondition(x => x != null)!;
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty> NotNull<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty?> ruleChainBuilder)
+        where TProperty : class
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NotNullOrDefaultRule<TEntity, TProperty?>())!;
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty?> NotNull<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty?> ruleChainBuilder)
+        where TProperty : struct
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NotNullOrDefaultRule<TEntity, TProperty?>());
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty> NotDefault<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty> ruleChainBuilder)
+        where TProperty : struct
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NotNullOrDefaultRule<TEntity, TProperty>());
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty?> Null<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty?> ruleChainBuilder)
+        where TProperty : class
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NullOrDefaultRule<TEntity, TProperty?>());
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty?> Null<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty?> ruleChainBuilder)
+        where TProperty : struct
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NullOrDefaultRule<TEntity, TProperty?>());
+    }
+
+    public static IRuleConfiguration<TEntity, TProperty> Default<TEntity, TProperty>(
+        this IRuleChainBuilder<TEntity, TProperty> ruleChainBuilder)
+        where TProperty : struct
+    {
+        ArgumentNullException.ThrowIfNull(ruleChainBuilder);
+
+        return ruleChainBuilder.AddRule(new NullOrDefaultRule<TEntity, TProperty>());
     }
 }

@@ -12,6 +12,8 @@ public sealed class ExtensionMethodAttribute : Attribute
 
     public string MethodName { get; }
 
+    public bool SavePropertyNullability { get; set; }
+
     public bool IsPublic { get; set; }
 
     public string? Namespace { get; set; }
