@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddValidatorsFromAssembly(
         this IServiceCollection services,
         Assembly assembly,
-        Action<IRegistrationOptions>? optionsAction = null,
+        Action<IRegistrationOptions>? optionsAction,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddValidatorsFromCurrentAssembly(
         this IServiceCollection services,
-        Action<IRegistrationOptions>? optionsAction = null,
+        Action<IRegistrationOptions>? optionsAction,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
         return services.AddValidatorsFromAssembly(Assembly.GetCallingAssembly(), optionsAction, lifetime);
@@ -55,7 +55,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddValidatorsFromAssemblies(
         this IServiceCollection services,
         IEnumerable<Assembly> assemblies,
-        Action<IRegistrationOptions>? optionsAction = null,
+        Action<IRegistrationOptions>? optionsAction,
         ServiceLifetime lifetime = ServiceLifetime.Scoped)
     {
         ArgumentNullException.ThrowIfNull(services);
