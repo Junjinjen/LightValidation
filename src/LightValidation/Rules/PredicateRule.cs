@@ -11,16 +11,16 @@ namespace LightValidation.Rules;
 [ExtensionMethod("Satisfy", IsPublic = true)]
 public sealed class PredicateRule<TEntity, TProperty> : AsyncRuleBase<TEntity, TProperty>
 {
-    private readonly Func<TEntity, TProperty, CancellationToken, ValueTask<bool>> _predicate;
+    private readonly Func<ValidationContext<TEntity>, TProperty, CancellationToken, ValueTask<bool>> _predicate;
 
-    public PredicateRule(Func<TEntity, TProperty, CancellationToken, ValueTask<bool>> predicate)
+    public PredicateRule(Func<ValidationContext<TEntity>, TProperty, CancellationToken, ValueTask<bool>> predicate)
     {
         _predicate = predicate;
     }
 
-    public PredicateRule(Func<TEntity, TProperty, ValueTask<bool>> predicate)
+    public PredicateRule(Func<ValidationContext<TEntity>, TProperty, ValueTask<bool>> predicate)
     {
-        _predicate = (entity, property, _) => predicate.Invoke(entity, property);
+        _predicate = (context, property, _) => predicate.Invoke(context, property);
     }
 
     public PredicateRule(Func<TProperty, CancellationToken, ValueTask<bool>> predicate)
@@ -33,9 +33,9 @@ public sealed class PredicateRule<TEntity, TProperty> : AsyncRuleBase<TEntity, T
         _predicate = (_, property, _) => predicate.Invoke(property);
     }
 
-    public PredicateRule(Func<TEntity, TProperty, bool> predicate)
+    public PredicateRule(Func<ValidationContext<TEntity>, TProperty, bool> predicate)
     {
-        _predicate = (entity, property, _) => ValueTask.FromResult(predicate.Invoke(entity, property));
+        _predicate = (context, property, _) => ValueTask.FromResult(predicate.Invoke(context, property));
     }
 
     public PredicateRule(Func<TProperty, bool> predicate)
@@ -52,6 +52,6 @@ public sealed class PredicateRule<TEntity, TProperty> : AsyncRuleBase<TEntity, T
 
     public override ValueTask<bool> Validate(ValidationContext<TEntity> context, TProperty value)
     {
-        return _predicate.Invoke(context.Entity, value, context.CancellationToken);
+        return _predicate.Invoke(context, value, context.CancellationToken);
     }
 }
