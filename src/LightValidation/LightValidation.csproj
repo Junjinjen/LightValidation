@@ -1,22 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <SourceGeneratorTargetFramework>netstandard2.0</SourceGeneratorTargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Nullable>enable</Nullable>
-    <RepositoryUrl>https://github.com/Junjinjen/LightValidation</RepositoryUrl>
-    <Copyright>Copyright (c) Alexander Kravchenko 2024</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Authors>Junjinjen</Authors>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LightValidation.SourceGenerator\LightValidation.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <None Include="..\LightValidation.SourceGenerator\bin\$(Configuration)\$(SourceGeneratorTargetFramework)\LightValidation.SourceGenerator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="$(SolutionDir)/LICENSE.txt" Pack="true" PackagePath=""/>
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
   </ItemGroup>
 
 </Project>

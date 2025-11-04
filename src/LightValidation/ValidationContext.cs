@@ -1,43 +1,75 @@
-﻿using LightValidation.Abstractions;
+﻿using LightValidation.Internal;
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq.Expressions;
 
 namespace LightValidation;
 
-public sealed class ValidationContext<TEntity> : IDependencyResolver
+public interface IValidationContext<TError>
 {
-    private readonly IDependencyResolver? _dependencyResolver;
+    IServiceProvider ServiceProvider { get; }
 
-    private readonly Dictionary<Type, object?>? _services;
+    IReadOnlyList<TError> Errors { get; }
 
-    public ValidationContext(Dictionary<Type, object?>? services, IDependencyResolver? dependencyResolver)
+    bool HasErrors { get; }
+
+    IValidationContext<TError> EnsureValid();
+
+    IValidationContext<TError> AddError(TError error);
+
+    IValidator<TModel, TError> Validate<TModel>(TModel model);
+}
+
+public sealed class ValidationContext<TError> : IValidationContext<TError>
+{
+    private readonly List<TError> _errors = [];
+
+    public ValidationContext(IServiceProvider? serviceProvider = null)
     {
-        _services = services;
-
-        _dependencyResolver = dependencyResolver;
+        ServiceProvider = serviceProvider ?? new DefaultServiceProvider();
     }
 
-    public required TEntity Entity { get; init; }
+    public IServiceProvider ServiceProvider { get; }
 
-    public required ValidationCache Cache { get; init; }
+    public IReadOnlyList<TError> Errors => _errors;
 
-    public required RuleSetCollection RuleSets { get; init; }
+    public bool HasErrors => _errors.Count > 0;
 
-    public required CancellationToken CancellationToken { get; init; }
-
-    public TService GetService<TService>()
+    public IValidationContext<TError> EnsureValid()
     {
-        if (_services?.TryGetValue(typeof(TService), out var service) == true)
+        if (HasErrors)
         {
-            return (TService)service!;
+            throw new ValidationException<TError>(_errors);
         }
 
-        if (_dependencyResolver != null)
-        {
-            return _dependencyResolver.GetService<TService>();
-        }
+        return this;
+    }
 
-        throw new InvalidOperationException($"No service for type '{typeof(TService)}' has been registered.");
+    public IValidationContext<TError> AddError(TError error)
+    {
+        _errors.Add(error);
+
+        return this;
+    }
+
+    public IValidator<TModel, TError> Validate<TModel>(TModel model)
+    {
+        Expression<Func<TModel, TModel>> selectorExpression = x => x;
+        var propertyNode = new PropertyNode<TError>();
+
+        return new Validator<TModel, TError>(propertyNode)
+        {
+            Context = this,
+            PathExpression = selectorExpression,
+            Value = model,
+        };
+    }
+
+    private sealed class DefaultServiceProvider : IServiceProvider
+    {
+        public object? GetService(Type serviceType)
+        {
+            return null;
+        }
     }
 }
