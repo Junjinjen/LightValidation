@@ -4,80 +4,145 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Options = LightValidation.Rules.NullabilityCheckOptions;
 
 namespace LightValidation.Rules;
 
 public static class NullabilityRule
 {
-    private static readonly ConcurrentDictionary<Type, Delegate> DelegateCache = [];
+    private static readonly ConcurrentDictionary<Type, PropertyValidator[]> ValidationCache = [];
 
-    public static IValidator<TValue, TError> CheckNullability<TValue, TError>(
-        this IValidator<TValue, TError> validator, Action<IValidator<TError>> errorCallback)
-        where TValue : class?
+    public static IValidator<TModel, TError> CheckNullability<TModel, TError>(
+        this IValidator<TModel, TError> validator, Action<IValidator<TError>> errorCallback)
     {
-        return CheckNullability(validator, allowDefaultValueTypes: true, errorCallback);
+        return CheckNullability(validator, errorCallback, Options.Default);
     }
 
-    public static IValidator<TValue, TError> CheckNullability<TValue, TError>(
-        this IValidator<TValue, TError> validator, bool allowDefaultValueTypes, Action<IValidator<TError>> errorCallback)
-        where TValue : class?
+    public static IValidator<TModel, TError> CheckNullability<TModel, TError>(
+        this IValidator<TModel, TError> validator, Action<IValidator<TError>> errorCallback, Options options)
     {
         ArgumentNullException.ThrowIfNull(validator);
         ArgumentNullException.ThrowIfNull(errorCallback);
+        ArgumentNullException.ThrowIfNull(options);
 
-        if (validator.Value == null)
+        if (validator.Value == null!)
         {
             errorCallback.Invoke(validator);
 
             return validator;
         }
 
-        var validatorType = typeof(IValidator<TValue, TError>);
-        var lambda = DelegateCache.GetOrAdd(validatorType, validatorType =>
+        var validatorType = typeof(IValidator<TModel, TError>);
+        var propertyValidators = ValidationCache.GetOrAdd(validatorType, validatorType =>
         {
-            var nullabilityContext = new NullabilityInfoContext();
-            var errorCallbackParameter = Expression.Parameter(typeof(Action<IValidator<TError>>), nameof(errorCallback));
             var validatorParameter = Expression.Parameter(validatorType, nameof(validator));
-            var valueParameter = Expression.Parameter(typeof(TValue), "x");
+            var errorCallbackParameter = Expression.Parameter(typeof(Action<IValidator<TError>>), nameof(errorCallback));
+            var optionsParameter = Expression.Parameter(typeof(Options), nameof(options));
+            var modelParameter = Expression.Parameter(typeof(TModel), "model");
+            var nullabilityContext = new NullabilityInfoContext();
 
-            var validationExpressions = typeof(TValue)
+            return typeof(TModel)
                 .GetProperties()
-                .Where(x => !x.PropertyType.IsValueType || !allowDefaultValueTypes)
-                .Where(x => nullabilityContext.Create(x).ReadState != NullabilityState.Nullable)
-                .Select(x =>
-                {
-                    var selectorBody = Expression.MakeMemberAccess(valueParameter, x);
-                    var selector = Expression.Lambda(selectorBody, valueParameter);
-                    var propertyCall = Expression.Call(
-                        validatorParameter, nameof(IValidator<TValue, TError>.Property), [x.PropertyType], selector);
-
-                    return Expression.Call(
-                        typeof(NullabilityRule),
-                        nameof(ValidateNullability),
-                        [x.PropertyType, typeof(TError)],
-                        propertyCall,
-                        errorCallbackParameter);
-                });
-
-            var body = Expression.Block(validationExpressions);
-            var lambdaExpression = Expression.Lambda<Action<IValidator<TValue, TError>, Action<IValidator<TError>>>>(
-                body, validatorParameter, errorCallbackParameter);
-
-            return lambdaExpression.Compile();
+                .Select(x => PropertyValidator.Create<TModel, TError>(
+                    x, validatorParameter, errorCallbackParameter, optionsParameter, modelParameter, nullabilityContext))
+                .ToArray();
         });
 
-        var typed = (Action<IValidator<TValue, TError>, Action<IValidator<TError>>>)lambda;
-        typed.Invoke(validator, errorCallback);
+        foreach (var propertyValidator in propertyValidators)
+        {
+            propertyValidator.Validate(validator, errorCallback, options);
+        }
 
         return validator;
     }
 
-    private static void ValidateNullability<TValue, TError>(
-        IValidator<TValue, TError> validator, Action<IValidator<TError>> errorCallback)
+    private sealed class PropertyValidator
     {
-        if (EqualityComparer<TValue>.Default.Equals(validator.Value, default))
+        private readonly Delegate _validationDelegate;
+        private readonly bool _isNullableReferenceType;
+        private readonly bool _isValueType;
+
+        private PropertyValidator(Delegate validationDelegate, bool isNullableReferenceType, bool isValueType)
         {
-            errorCallback.Invoke(validator);
+            _validationDelegate = validationDelegate;
+            _isNullableReferenceType = isNullableReferenceType;
+            _isValueType = isValueType;
+        }
+
+        public static PropertyValidator Create<TModel, TError>(
+            PropertyInfo propertyInfo,
+            ParameterExpression validatorParameter,
+            ParameterExpression errorCallbackParameter,
+            ParameterExpression optionsParameter,
+            ParameterExpression modelParameter,
+            NullabilityInfoContext nullabilityContext)
+        {
+            var propertyType = propertyInfo.PropertyType;
+            var selectorBody = Expression.MakeMemberAccess(modelParameter, propertyInfo);
+            var selector = Expression.Lambda(selectorBody, modelParameter);
+            var propertyCall = Expression.Call(validatorParameter, nameof(IValidator<,>.Property), [propertyType], selector);
+
+            var isStringType = propertyType == typeof(string);
+            var methodName = isStringType ? nameof(StringValidationLogic) : nameof(ValidationLogic);
+            Type[] typeParameters = isStringType ? [typeof(TError)] : [propertyType, typeof(TError)];
+            var body = Expression.Call(
+                typeof(PropertyValidator), methodName, typeParameters, propertyCall, errorCallbackParameter, optionsParameter);
+
+            var lambda = Expression.Lambda<Action<IValidator<TModel, TError>, Action<IValidator<TError>>, Options>>(
+                body, validatorParameter, errorCallbackParameter, optionsParameter);
+
+            var validationDelegate = lambda.Compile();
+            var isValueType = propertyType.IsValueType;
+            var isNullableReferenceType = !isValueType
+                && nullabilityContext.Create(propertyInfo).ReadState == NullabilityState.Nullable;
+
+            return new PropertyValidator(validationDelegate, isNullableReferenceType, isValueType);
+        }
+
+        public void Validate<TModel, TError>(
+            IValidator<TModel, TError> validator, Action<IValidator<TError>> errorCallback, Options options)
+        {
+            if (_isNullableReferenceType && !options.CheckNullableReferenceTypes)
+            {
+                return;
+            }
+
+            if (_isValueType && options.AllowDefaultValueTypes)
+            {
+                return;
+            }
+
+            var typed = (Action<IValidator<TModel, TError>, Action<IValidator<TError>>, Options>)_validationDelegate;
+            typed.Invoke(validator, errorCallback, options);
+        }
+
+        private static void ValidationLogic<TValue, TError>(
+            IValidator<TValue, TError> validator, Action<IValidator<TError>> errorCallback, Options options)
+        {
+            if (!options.CheckInvalidProperties && !validator.IsValid)
+            {
+                return;
+            }
+
+            if (EqualityComparer<TValue>.Default.Equals(validator.Value, default))
+            {
+                errorCallback.Invoke(validator);
+            }
+        }
+
+        private static void StringValidationLogic<TError>(
+            IValidator<string, TError> validator, Action<IValidator<TError>> errorCallback, Options options)
+        {
+            if (!options.CheckInvalidProperties && !validator.IsValid)
+            {
+                return;
+            }
+
+            var result = options.AllowEmptyStrings ? validator.Value != null : !string.IsNullOrEmpty(validator.Value);
+            if (!result)
+            {
+                errorCallback.Invoke(validator);
+            }
         }
     }
 }

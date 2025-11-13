@@ -28,13 +28,17 @@ public interface IValidator<out TValue, TError> : IValidator<TError>
     IValidator<TProperty, TError> Property<TProperty>(LambdaExpression selectorExpression);
 }
 
-internal sealed partial class Validator<TValue, TError> : IValidator<TValue, TError>
+internal sealed class Validator<TValue, TError> : IValidator<TValue, TError>
 {
     private readonly PropertyNode<TError> _propertyNode;
+    private readonly Func<TValue> _valueSelector;
 
-    public Validator(PropertyNode<TError> propertyNode)
+    private bool _isValueSelected;
+
+    public Validator(PropertyNode<TError> propertyNode, Func<TValue> valueSelector)
     {
         _propertyNode = propertyNode;
+        _valueSelector = valueSelector;
     }
 
     public required IValidationContext<TError> Context { get; init; }
@@ -45,13 +49,25 @@ internal sealed partial class Validator<TValue, TError> : IValidator<TValue, TEr
 
     public bool IsValid => _propertyNode.IsValid;
 
-    public required TValue Value { get; init; }
+    public TValue Value
+    {
+        get
+        {
+            if (!_isValueSelected)
+            {
+                field = _valueSelector.Invoke();
+                _isValueSelected = true;
+            }
+
+            return field!;
+        }
+    }
 
     object? IValidator<TError>.Value => Value;
 
     public IValidator<TValue, TError> AddError(TError error)
     {
-        _propertyNode.SetInvalid();
+        _propertyNode.MarkInvalid();
         Context.AddError(error);
 
         return this;
@@ -75,17 +91,18 @@ internal sealed partial class Validator<TValue, TError> : IValidator<TValue, TEr
         var selectorInfo = SelectorParser.Parse(selectorExpression);
         return _propertyNode.GetValidator(selectorInfo, propertyNode =>
         {
-            var selector = SelectorCache.GetPropertySelector<TValue, TProperty>(selectorInfo);
             var pathExpression = PathExpressionBuilder.Build(PathExpression, selectorExpression, selectorInfo.Constants);
+            Func<TProperty> valueSelector = () =>
+            {
+                var selector = SelectorCache.GetPropertySelector<TValue, TProperty>(selectorInfo);
 
-            ArgumentNullException.ThrowIfNull(Value);
-            var value = selector.Invoke(Value);
+                return selector.Invoke(Value);
+            };
 
-            return new Validator<TProperty, TError>(propertyNode)
+            return new Validator<TProperty, TError>(propertyNode, valueSelector)
             {
                 Context = Context,
                 PathExpression = pathExpression,
-                Value = value,
             };
         });
     }

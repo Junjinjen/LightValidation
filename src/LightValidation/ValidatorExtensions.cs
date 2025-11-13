@@ -33,6 +33,21 @@ public static class ValidatorExtensions
         return validator;
     }
 
+    public static async Task<IValidator<IReadOnlyList<TValue>, TError>> ForEach<TValue, TError>(
+        this IValidator<IReadOnlyList<TValue>, TError> validator, Func<IValidator<TValue, TError>, Task> validationAction)
+    {
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(validationAction);
+
+        for (var i = 0; i < validator.Value.Count; i++)
+        {
+            var propertyValidator = validator.Property(x => x[i]);
+            await validationAction.Invoke(propertyValidator).ConfigureAwait(false);
+        }
+
+        return validator;
+    }
+
     [OverloadResolutionPriority(1)]
     public static IValidator<IList<TValue>, TError> ForEach<TValue, TError>(
         this IValidator<IList<TValue>, TError> validator, Action<IValidator<TValue, TError>> validationAction)
@@ -49,6 +64,22 @@ public static class ValidatorExtensions
         return validator;
     }
 
+    [OverloadResolutionPriority(1)]
+    public static async Task<IValidator<IList<TValue>, TError>> ForEach<TValue, TError>(
+        this IValidator<IList<TValue>, TError> validator, Func<IValidator<TValue, TError>, Task> validationAction)
+    {
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(validationAction);
+
+        for (var i = 0; i < validator.Value.Count; i++)
+        {
+            var propertyValidator = validator.Property(x => x[i]);
+            await validationAction.Invoke(propertyValidator).ConfigureAwait(false);
+        }
+
+        return validator;
+    }
+
     public static IValidator<TValue, TError> EnsureContextValid<TValue, TError>(this IValidator<TValue, TError> validator)
     {
         ArgumentNullException.ThrowIfNull(validator);
@@ -56,6 +87,13 @@ public static class ValidatorExtensions
         validator.Context.EnsureValid();
 
         return validator;
+    }
+
+    public static bool IsContextValid<TValue, TError>(this IValidator<TValue, TError> validator)
+    {
+        ArgumentNullException.ThrowIfNull(validator);
+
+        return !validator.Context.HasErrors;
     }
 
     public static IValidator<TValue, TError> IfValid<TValue, TError>(

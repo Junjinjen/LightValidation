@@ -7,14 +7,12 @@ using System.Linq.Expressions;
 
 namespace LightValidation.Internal;
 
-internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>?>
+internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>>
 {
     private readonly HashSet<PropertyNode<TError>> _children = [];
     private readonly IReadOnlyList<object?> _constants;
     private readonly PropertyNode<TError> _root;
     private readonly ExpressionNode? _node;
-
-    private bool _isValid = true;
     private object? _validator;
 
     public PropertyNode()
@@ -37,14 +35,16 @@ internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>?>
     {
         get
         {
-            if (_isValid)
+            if (field)
             {
-                _isValid = _children.All(x => x.IsValid);
+                field = _children.All(x => x.IsValid);
             }
 
-            return _isValid;
+            return field;
         }
-    }
+
+        private set;
+    } = true;
 
     public IValidator<TValue, TError> GetValidator<TValue>(
         PropertySelectorInfo selectorInfo, Func<PropertyNode<TError>, IValidator<TValue, TError>> validatorFactory)
@@ -55,9 +55,9 @@ internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>?>
         return (IValidator<TValue, TError>)node._validator;
     }
 
-    public void SetInvalid()
+    public void MarkInvalid()
     {
-        _isValid = false;
+        IsValid = false;
     }
 
     public override bool Equals(object? obj)
@@ -67,13 +67,15 @@ internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>?>
 
     public bool Equals(PropertyNode<TError>? other)
     {
-        return other != null && _constants.SequenceEqual(other._constants) && CompareExpressionNodes(_node, other._node);
+        return other != null
+            && _constants.SequenceEqual(other._constants)
+            && PathNodeComparer.Instance.Equals(_node, other._node);
     }
 
     public override int GetHashCode()
     {
         var hashCode = new HashCode();
-        var nodeHashCode = GetExpressionNodeHashCode(_node);
+        var nodeHashCode = PathNodeComparer.Instance.GetHashCode(_node);
         hashCode.Add(nodeHashCode);
 
         foreach (var constant in _constants)
@@ -84,78 +86,25 @@ internal sealed class PropertyNode<TError> : IEquatable<PropertyNode<TError>?>
         return hashCode.ToHashCode();
     }
 
-    private static bool CompareExpressionNodes(ExpressionNode? left, ExpressionNode? right)
-    {
-        return (left, right) switch
-        {
-            (MethodNode x, ValueNode y) => CompareNodes(x, y),
-            (ValueNode x, MethodNode y) => CompareNodes(y, x),
-            _ => Equals(left, right),
-        };
-    }
-
-    private static int GetExpressionNodeHashCode(ExpressionNode? node)
-    {
-        if (node is ValueNode valueNode && IsIndexer(valueNode))
-        {
-            return HashCode.Combine(valueNode.ValueType);
-        }
-
-        if (node is MethodNode methodNode && IsIndexer(methodNode))
-        {
-            return HashCode.Combine(methodNode.Method.ReturnType);
-        }
-
-        return node?.GetHashCode() ?? 0;
-    }
-
-    private static bool CompareNodes(MethodNode left, ValueNode right)
-    {
-        if (!IsIndexer(left) || !IsIndexer(right))
-        {
-            return false;
-        }
-
-        return left.Method.ReturnType == right.ValueType;
-    }
-
-    private static bool IsIndexer(ValueNode node)
-    {
-        return node.ExpressionType == ExpressionType.ArrayIndex;
-    }
-
-    private static bool IsIndexer(MethodNode node)
-    {
-        var method = node.Method;
-        if (!method.IsSpecialName)
-        {
-            return false;
-        }
-
-        var parameters = method.GetParameters();
-
-        return parameters.Length == 1 && parameters[0].ParameterType == typeof(int);
-    }
-
     private static IReadOnlyList<object?> GetNodeConstants(
         ExpressionNode node, IReadOnlyList<object?> constants, int constantIndex)
     {
         if (node.ExpressionType == ExpressionType.ArrayIndex)
         {
-            return GetSubSequence(constants, constantIndex, 1);
+            return GetSubsequence(constants, constantIndex, 1);
         }
 
         if (node is MethodNode methodNode)
         {
             var parameterCount = methodNode.Method.GetParameters().Length;
 
-            return GetSubSequence(constants, constantIndex, parameterCount);
+            return GetSubsequence(constants, constantIndex, parameterCount);
         }
 
         return [];
     }
 
-    private static IReadOnlyList<object?> GetSubSequence(IReadOnlyList<object?> constants, int index, int length)
+    private static IReadOnlyList<object?> GetSubsequence(IReadOnlyList<object?> constants, int index, int length)
     {
         if (constants.Count == length)
         {

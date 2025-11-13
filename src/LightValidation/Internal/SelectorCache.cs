@@ -15,23 +15,23 @@ internal static class SelectorCache
     public static Func<TModel, TProperty> GetPropertySelector<TModel, TProperty>(PropertySelectorInfo selectorInfo)
     {
         var key = new CacheKey(selectorInfo.Nodes);
-        var lambda = PropertySelectorCache.GetOrAdd(key, _ =>
+        var selector = PropertySelectorCache.GetOrAdd(key, _ =>
         {
             var body = selectorInfo.Body;
-            LambdaExpression expression = selectorInfo.Constants.Count > 0
+            LambdaExpression lambda = selectorInfo.Constants.Count > 0
                 ? Expression.Lambda<Func<TModel, IReadOnlyList<object?>, TProperty>>(
                     body, selectorInfo.ModelParameter, selectorInfo.ConstantsParameter)
                 : Expression.Lambda<Func<TModel, TProperty>>(body, selectorInfo.ModelParameter);
 
-            return expression.Compile();
+            return lambda.Compile();
         });
 
         if (selectorInfo.Constants.Count == 0)
         {
-            return (Func<TModel, TProperty>)lambda;
+            return (Func<TModel, TProperty>)selector;
         }
 
-        var typed = (Func<TModel, IReadOnlyList<object?>, TProperty>)lambda;
+        var typed = (Func<TModel, IReadOnlyList<object?>, TProperty>)selector;
         var constants = selectorInfo.Constants;
 
         return x => typed.Invoke(x, constants);
@@ -40,17 +40,17 @@ internal static class SelectorCache
     public static Func<object?> GetArgumentSelector(SelectorInfo selectorInfo)
     {
         var key = new CacheKey(selectorInfo.Nodes);
-        var lambda = ArgumentSelectorCache.GetOrAdd(key, _ =>
+        var selector = ArgumentSelectorCache.GetOrAdd(key, _ =>
         {
             var body = Expression.Convert(selectorInfo.Body, typeof(object));
-            var expression = Expression.Lambda<Func<IReadOnlyList<object?>, object?>>(body, selectorInfo.ConstantsParameter);
+            var lambda = Expression.Lambda<Func<IReadOnlyList<object?>, object?>>(body, selectorInfo.ConstantsParameter);
 
-            return expression.Compile();
+            return lambda.Compile();
         });
 
         var constants = selectorInfo.Constants;
 
-        return () => lambda.Invoke(constants);
+        return () => selector.Invoke(constants);
     }
 
     private sealed class CacheKey : IEquatable<CacheKey>

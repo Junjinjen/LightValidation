@@ -20,7 +20,7 @@ public interface IValidationContext<TError>
     IValidator<TModel, TError> Validate<TModel>(TModel model);
 }
 
-public sealed class ValidationContext<TError> : IValidationContext<TError>
+public class ValidationContext<TError> : IValidationContext<TError>
 {
     private readonly List<TError> _errors = [];
 
@@ -35,7 +35,7 @@ public sealed class ValidationContext<TError> : IValidationContext<TError>
 
     public bool HasErrors => _errors.Count > 0;
 
-    public IValidationContext<TError> EnsureValid()
+    public virtual IValidationContext<TError> EnsureValid()
     {
         if (HasErrors)
         {
@@ -45,23 +45,22 @@ public sealed class ValidationContext<TError> : IValidationContext<TError>
         return this;
     }
 
-    public IValidationContext<TError> AddError(TError error)
+    public virtual IValidationContext<TError> AddError(TError error)
     {
         _errors.Add(error);
 
         return this;
     }
 
-    public IValidator<TModel, TError> Validate<TModel>(TModel model)
+    public virtual IValidator<TModel, TError> Validate<TModel>(TModel model)
     {
         Expression<Func<TModel, TModel>> selectorExpression = x => x;
         var propertyNode = new PropertyNode<TError>();
 
-        return new Validator<TModel, TError>(propertyNode)
+        return new Validator<TModel, TError>(propertyNode, () => model)
         {
             Context = this,
             PathExpression = selectorExpression,
-            Value = model,
         };
     }
 
