@@ -27,14 +27,6 @@ internal sealed class PropertyNameBuilder : ExpressionVisitor
         return visitor._builder.ToString();
     }
 
-    protected override Expression VisitParameter(ParameterExpression node)
-    {
-        var name = _nameResolver.GetModelName(node.Type);
-        Append(name);
-
-        return node;
-    }
-
     protected override Expression VisitMember(MemberExpression node)
     {
         Visit(node.Expression);
