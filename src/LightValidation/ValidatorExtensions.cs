@@ -133,7 +133,7 @@ public static class ValidatorExtensions
         ArgumentNullException.ThrowIfNull(validator);
 
         var nameResolver = validator.Context.ServiceProvider.GetService(typeof(IPropertyNameResolver)) as IPropertyNameResolver
-            ?? new PropertyNameResolver();
+            ?? new DefaultPropertyNameResolver();
 
         return PropertyNameBuilder.Build(validator.PathExpression, nameResolver);
     }

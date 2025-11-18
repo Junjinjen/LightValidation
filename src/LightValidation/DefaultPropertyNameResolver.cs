@@ -14,7 +14,7 @@ public interface IPropertyNameResolver
     CompositeFormat? GetIndexFormat();
 }
 
-public class PropertyNameResolver : IPropertyNameResolver
+public class DefaultPropertyNameResolver : IPropertyNameResolver
 {
     private static readonly CompositeFormat ArgumentsFormat = CompositeFormat.Parse("({0})");
     private static readonly CompositeFormat IndexFormat = CompositeFormat.Parse("[{0}]");
