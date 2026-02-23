@@ -1,53 +1,47 @@
-﻿using LightValidation.Internal;
+﻿using LightValidation.Internal.Selector;
 using System;
 using System.Linq.Expressions;
 
 namespace LightValidation;
 
-public interface IValidator<TError>
+public interface IValidator<out TValue, TError>
 {
     IValidationContext<TError> Context { get; }
 
-    LambdaExpression PathExpression { get; }
+    string PropertyPath { get; }
 
-    bool IsRootValid { get; }
+    TValue Value { get; }
 
     bool IsValid { get; }
 
-    object? Value { get; }
+    IValidator<TValue, TError> AddAlias(string alias);
 
-    IValidator<TError> AddError(TError error);
-}
-
-public interface IValidator<out TValue, TError> : IValidator<TError>
-{
-    new TValue Value { get; }
-
-    new IValidator<TValue, TError> AddError(TError error);
+    IValidator<TValue, TError> AddError(TError error);
 
     IValidator<TProperty, TError> Property<TProperty>(LambdaExpression selectorExpression);
 }
 
-internal sealed class Validator<TValue, TError> : IValidator<TValue, TError>
+public sealed class Validator<TValue, TError> : IValidator<TValue, TError>
 {
-    private readonly PropertyNode<TError> _propertyNode;
-    private readonly Func<TValue> _valueSelector;
+    private readonly Func<TValue>? _valueSelector;
 
     private bool _isValueSelected;
+    private TValue? _value;
 
-    public Validator(PropertyNode<TError> propertyNode, Func<TValue> valueSelector)
+    public Validator(TValue value)
     {
-        _propertyNode = propertyNode;
+        _isValueSelected = true;
+        _value = value;
+    }
+
+    private Validator(Func<TValue> valueSelector)
+    {
         _valueSelector = valueSelector;
     }
 
     public required IValidationContext<TError> Context { get; init; }
 
-    public required LambdaExpression PathExpression { get; init; }
-
-    public bool IsRootValid => _propertyNode.IsRootValid;
-
-    public bool IsValid => _propertyNode.IsValid;
+    public required string PropertyPath { get; init; }
 
     public TValue Value
     {
@@ -55,27 +49,28 @@ internal sealed class Validator<TValue, TError> : IValidator<TValue, TError>
         {
             if (!_isValueSelected)
             {
-                field = _valueSelector.Invoke();
+                _value = _valueSelector!.Invoke();
                 _isValueSelected = true;
             }
 
-            return field!;
+            return _value!;
         }
     }
 
-    object? IValidator<TError>.Value => Value;
+    public bool IsValid => Context.IsPropertyValid(PropertyPath);
 
-    public IValidator<TValue, TError> AddError(TError error)
+    public IValidator<TValue, TError> AddAlias(string alias)
     {
-        _propertyNode.MarkInvalid();
-        Context.AddError(error);
+        Context.AddPropertyAlias(PropertyPath, alias);
 
         return this;
     }
 
-    IValidator<TError> IValidator<TError>.AddError(TError error)
+    public IValidator<TValue, TError> AddError(TError error)
     {
-        return AddError(error);
+        Context.AddPropertyError(PropertyPath, error);
+
+        return this;
     }
 
     public IValidator<TProperty, TError> Property<TProperty>(LambdaExpression selectorExpression)
@@ -88,22 +83,12 @@ internal sealed class Validator<TValue, TError> : IValidator<TValue, TError>
             throw new ArgumentException("Invalid selector expression type.", nameof(selectorExpression));
         }
 
-        var selectorInfo = SelectorParser.Parse(selectorExpression);
-        return _propertyNode.GetValidator(selectorInfo, propertyNode =>
+        var selectorInfo = SelectorParser.Parse(selectorExpression, PropertyPath);
+
+        return new Validator<TProperty, TError>(() => SelectorInvoker.GetPropertyValue<TValue, TProperty>(Value, selectorInfo))
         {
-            var pathExpression = PathExpressionBuilder.Build(PathExpression, selectorExpression, selectorInfo.Constants);
-            Func<TProperty> valueSelector = () =>
-            {
-                var selector = SelectorCache.GetPropertySelector<TValue, TProperty>(selectorInfo);
-
-                return selector.Invoke(Value);
-            };
-
-            return new Validator<TProperty, TError>(propertyNode, valueSelector)
-            {
-                Context = Context,
-                PathExpression = pathExpression,
-            };
-        });
+            Context = Context,
+            PropertyPath = selectorInfo.PropertyPath,
+        };
     }
 }

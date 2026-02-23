@@ -2,15 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <Nullable>enable</Nullable>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="$(SolutionDir)/LICENSE.txt" Pack="true" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Tests" />
   </ItemGroup>
 

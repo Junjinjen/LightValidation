@@ -1,74 +1,152 @@
 ﻿using LightValidation.Internal;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
+using System.Collections.Immutable;
 
 namespace LightValidation;
 
 public interface IValidationContext<TError>
 {
-    IServiceProvider ServiceProvider { get; }
-
-    IReadOnlyList<TError> Errors { get; }
-
     bool HasErrors { get; }
 
-    IValidationContext<TError> EnsureValid();
+    IReadOnlyDictionary<string, IReadOnlyList<TError>> Errors { get; }
 
-    IValidationContext<TError> AddError(TError error);
+    bool IsPropertyValid(string property);
 
-    IValidator<TModel, TError> Validate<TModel>(TModel model);
+    IValidationContext<TError> UsePropertyNameProvider(Func<string, string> provider);
+
+    IValidationContext<TError> AddPropertyAlias(string property, string alias);
+
+    IValidationContext<TError> AddPropertyError(string property, TError error);
 }
 
-public class ValidationContext<TError> : IValidationContext<TError>
+public sealed class ValidationContext<TError> : IValidationContext<TError>
 {
-    private readonly List<TError> _errors = [];
+    private const char UnderscoreChar = '_';
 
-    public ValidationContext(IServiceProvider? serviceProvider = null)
+    private Func<string, string>? _nameProvider;
+    private ErrorCollection<TError>? _errors;
+    private AliasCollection? _aliases;
+
+    public bool HasErrors => _errors != null;
+
+    public IReadOnlyDictionary<string, IReadOnlyList<TError>> Errors =>
+        _errors != null ? _errors : ImmutableDictionary<string, IReadOnlyList<TError>>.Empty;
+
+    public bool IsPropertyValid(string property)
     {
-        ServiceProvider = serviceProvider ?? new DefaultServiceProvider();
+        if (_errors == null)
+        {
+            return true;
+        }
+
+        property = GetProperty(property);
+
+        return _errors.IsPropertyValid(property);
     }
 
-    public IServiceProvider ServiceProvider { get; }
-
-    public IReadOnlyList<TError> Errors => _errors;
-
-    public bool HasErrors => _errors.Count > 0;
-
-    public virtual IValidationContext<TError> EnsureValid()
+    public IValidationContext<TError> UsePropertyNameProvider(Func<string, string> provider)
     {
-        if (HasErrors)
-        {
-            throw new ValidationException<TError>(_errors);
-        }
+        ArgumentNullException.ThrowIfNull(provider);
+
+        _nameProvider = provider;
 
         return this;
     }
 
-    public virtual IValidationContext<TError> AddError(TError error)
+    public IValidationContext<TError> AddPropertyAlias(string property, string alias)
     {
-        _errors.Add(error);
+        ValidateProperty(property);
+        ValidateAlias(alias);
+
+        _aliases ??= new();
+        _aliases.AddAlias(property, alias);
 
         return this;
     }
 
-    public virtual IValidator<TModel, TError> Validate<TModel>(TModel model)
+    public IValidationContext<TError> AddPropertyError(string property, TError error)
     {
-        Expression<Func<TModel, TModel>> selectorExpression = x => x;
-        var propertyNode = new PropertyNode<TError>();
+        ValidateProperty(property);
 
-        return new Validator<TModel, TError>(propertyNode, () => model)
-        {
-            Context = this,
-            PathExpression = selectorExpression,
-        };
+        property = GetProperty(property);
+
+        _errors ??= [];
+        _errors.Add(property, error, _nameProvider);
+
+        return this;
     }
 
-    private sealed class DefaultServiceProvider : IServiceProvider
+    private static void ValidateProperty(string property)
     {
-        public object? GetService(Type serviceType)
+        ArgumentNullException.ThrowIfNull(property);
+
+        var i = 0;
+        while (i < property.Length)
         {
-            return null;
+            var @char = property[i];
+            if (IsValidPropertyChar(@char) || @char == Constants.PropertyDelimiter)
+            {
+                i++;
+            }
+            else if (@char == Constants.OpeningIndexChar)
+            {
+                i += GetArgumentsLength(property, i, Constants.OpeningIndexChar, Constants.ClosingIndexChar);
+            }
+            else if (@char == Constants.OpeningArgumentsChar)
+            {
+                i += GetArgumentsLength(property, i, Constants.OpeningArgumentsChar, Constants.ClosingArgumentsChar);
+            }
+            else
+            {
+                throw new ArgumentException($"Property contains an invalid character: '{@char}'.", nameof(property));
+            }
         }
+    }
+
+    private static void ValidateAlias(string alias)
+    {
+        ArgumentNullException.ThrowIfNull(alias);
+
+        for (var i = 0; i < alias.Length; i++)
+        {
+            var @char = alias[i];
+            if (!IsValidPropertyChar(@char))
+            {
+                throw new ArgumentException($"Alias contains an invalid character: '{@char}'.", nameof(alias));
+            }
+        }
+    }
+
+    private static bool IsValidPropertyChar(char value)
+    {
+        return char.IsLetterOrDigit(value) || value == UnderscoreChar;
+    }
+
+    private static int GetArgumentsLength(string property, int index, char openingChar, char closingChar)
+    {
+        var depth = 1;
+        for (var i = index + 1; i < property.Length; i++)
+        {
+            var @char = property[i];
+            if (@char == closingChar)
+            {
+                if (--depth == 0)
+                {
+                    return i - index + 1;
+                }
+            }
+            else if (@char == openingChar)
+            {
+                depth++;
+            }
+        }
+
+        throw new ArgumentException($"Property doesn't contain a matching '{closingChar}' character.", nameof(property));
+    }
+
+    private string GetProperty(string alias)
+    {
+        return _aliases != null ? _aliases.GetProperty(alias) : alias;
     }
 }
