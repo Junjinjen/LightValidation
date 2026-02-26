@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace LightValidation;
 
-internal static class ValidationExtensions
+public static class ValidationExtensions
 {
     public static IValidator<TModel, TError> Validate<TModel, TError>(
         this IValidationContext<TError> context, TModel model, [CallerArgumentExpression(nameof(model))] string modelName = "")

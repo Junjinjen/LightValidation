@@ -1,17 +1,30 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace LightValidation.Rules;
 
-public static class NullabilityRule
+public static class ModelRules
 {
-    private static readonly ConcurrentDictionary<Type, Delegate> ValidationCache = [];
+    private static readonly ConcurrentDictionary<(Type ValidatorType, bool CheckValueTypes), Delegate> Cache = [];
 
-    public static IValidator<TModel, TError> CheckNullability<TModel, TError>(
+    public static IValidator<TModel, TError> AllPropertiesNotDefault<TModel, TError>(
         this IValidator<TModel, TError> validator, TError error)
+    {
+        return CheckProperties(validator, checkValueTypes: true, error);
+    }
+
+    public static IValidator<TModel, TError> AllPropertiesNotNull<TModel, TError>(
+        this IValidator<TModel, TError> validator, TError error)
+    {
+        return CheckProperties(validator, checkValueTypes: false, error);
+    }
+
+    private static IValidator<TModel, TError> CheckProperties<TModel, TError>(
+        IValidator<TModel, TError> validator, bool checkValueTypes, TError error)
     {
         ArgumentNullException.ThrowIfNull(validator);
 
@@ -20,16 +33,18 @@ public static class NullabilityRule
             return validator.AddError(error);
         }
 
-        var validation = ValidationCache.GetOrAdd(typeof(IValidator<TModel, TError>), validatorType =>
+        var key = (typeof(IValidator<TModel, TError>), checkValueTypes);
+        var validation = Cache.GetOrAdd(key, key =>
         {
-            var validatorParameter = Expression.Parameter(validatorType);
+            var validatorParameter = Expression.Parameter(key.ValidatorType);
             var modelParameter = Expression.Parameter(typeof(TModel));
             var errorParameter = Expression.Parameter(typeof(TError));
 
             var nullabilityContext = new NullabilityInfoContext();
             var validations = typeof(TModel)
                 .GetProperties()
-                .Where(x => !x.PropertyType.IsValueType && nullabilityContext.Create(x).ReadState != NullabilityState.Nullable)
+                .Where(x => nullabilityContext.Create(x).ReadState != NullabilityState.Nullable)
+                .Where(x => key.CheckValueTypes || !x.PropertyType.IsValueType)
                 .Select(x =>
                 {
                     var propertyType = x.PropertyType;
@@ -39,7 +54,7 @@ public static class NullabilityRule
                         validatorParameter, nameof(IValidator<,>.Property), [propertyType], selector);
 
                     return Expression.Call(
-                        typeof(NullabilityRule),
+                        typeof(ModelRules),
                         nameof(ValidationLogic),
                         [propertyType, typeof(TError)],
                         propertyCall,
@@ -59,9 +74,8 @@ public static class NullabilityRule
     }
 
     private static void ValidationLogic<TValue, TError>(IValidator<TValue, TError> validator, TError error)
-        where TValue : class?
     {
-        if (validator.Value == null)
+        if (EqualityComparer<TValue>.Default.Equals(validator.Value, default))
         {
             validator.AddError(error);
         }
