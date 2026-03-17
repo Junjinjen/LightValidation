@@ -15,7 +15,6 @@ internal sealed class AliasCollection
     {
         property = GetPropertyWithAliasSearch(property, alias, out var index);
         var pair = KeyValuePair.Create(alias, property);
-
         if (index >= 0)
         {
             _aliases[index] = pair;
@@ -36,7 +35,6 @@ internal sealed class AliasCollection
         {
             var currentAlias = _aliases[i].Key;
             var currentLength = currentAlias.Length;
-
             if (PropertyNameUtilities.StartsWith(alias, currentAlias) && currentLength > maxLength)
             {
                 maxLength = currentLength;

@@ -14,7 +14,7 @@ internal sealed class ExpressionKey : IEquatable<ExpressionKey>
         _nodes = nodes;
     }
 
-    public void MakePersistant()
+    public void MakePersistent()
     {
         _nodes = _nodes.ToArray();
     }

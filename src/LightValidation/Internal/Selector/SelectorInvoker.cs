@@ -14,7 +14,7 @@ internal static class SelectorInvoker
     {
         var selector = PropertySelectorCache.GetOrAdd(selectorInfo.Key, key =>
         {
-            MakeKeyPersistant(key);
+            MakeKeyPersistent(key);
 
             var body = selectorInfo.Body;
             LambdaExpression lambda = selectorInfo.Constants.Count > 0
@@ -34,7 +34,7 @@ internal static class SelectorInvoker
     {
         var selector = ArgumentSelectorCache.GetOrAdd(selectorInfo.Key, key =>
         {
-            MakeKeyPersistant(key);
+            MakeKeyPersistent(key);
 
             var body = Expression.Convert(selectorInfo.Body, typeof(object));
             var lambda = Expression.Lambda<Func<IReadOnlyList<object?>, object?>>(body, Constants.ConstantsParameter);
@@ -45,11 +45,11 @@ internal static class SelectorInvoker
         return selector.Invoke(selectorInfo.Constants);
     }
 
-    private static void MakeKeyPersistant(object key)
+    private static void MakeKeyPersistent(object key)
     {
         if (key is ExpressionKey expressionKey)
         {
-            expressionKey.MakePersistant();
+            expressionKey.MakePersistent();
         }
     }
 }
